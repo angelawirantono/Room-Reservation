@@ -149,53 +149,10 @@ session_start();
                           <span class="menu-arrow arrow_carrot-right"></span>
                       </a>
                       <ul class="sub">
-                          <li><a class="" href="?module=student">Student Form</a></li>                          
-                          <li><a class="" href="?module=teacher">Teacher Form</a></li>
+                          <li><a class="" href="reservation_form.html">Reservation Form</a></li>                          
+                          <li><a class="" href="#">Cancelation Form</a></li>
                       </ul>
                   </li>       
-                  <li class="sub-menu">
-                      <a href="javascript:;" class="">
-                          <i class="icon_desktop"></i>
-                          <span>Announcement</span>
-                          <span class="menu-arrow arrow_carrot-right"></span>
-                      </a>
-                      <ul class="sub">
-                          <li><a class="" href="?module=concert">Concert</a></li>
-                          <li><a class="" href="?module=class">Class</a></li>
-                          <li><a class="" href="?module=result">Exam Result</a></li>
-                      </ul>
-                  </li>
-                  <li>
-                      <a class="" href="?module=widgets">
-                          <i class="icon_genius"></i>
-                          <span>Music Fantasy Class</span>
-                      </a>
-                  </li>
-                           
-                  <li class="sub-menu">
-                      <a href="javascript:;" class="">
-                          <i class="icon_table"></i>
-                          <span>Students</span>
-                          <span class="menu-arrow arrow_carrot-right"></span>
-                      </a>
-                      <ul class="sub">
-                          <li><a class="" href="?module=tabel">Basic Table</a></li>
-                      </ul>
-                  </li>
-                  
-                  <!--<li class="sub-menu">
-                      <a href="javascript:;" class="">
-                          <i class="icon_documents_alt"></i>
-                          <span>Pages</span>
-                          <span class="menu-arrow arrow_carrot-right"></span>
-                      </a>
-                      <ul class="sub">                          
-                          <li><a class="" href="profile.php">Profile</a></li>
-                          <li><a class="" href="login.php"><span>Login Page</span></a></li>
-                          <li><a class="" href="blank.php">Blank Page</a></li>
-                          <li><a class="" href="404.php">404 Error</a></li>
-                      </ul>
-                  </li>-->
               </ul>
               <!-- sidebar menu end-->
           </div>
@@ -252,56 +209,6 @@ session_start();
 	<script src="js/sparklines.js"></script>	
 	<script src="js/charts.js"></script>
 	<script src="js/jquery.slimscroll.min.js"></script>
-
-  <script>
-
-      //knob
-      $(function() {
-        $(".knob").knob({
-          'draw' : function () { 
-            $(this.i).val(this.cv + '%')
-          }
-        })
-      });
-
-      //carousel
-      $(document).ready(function() {
-          $("#owl-slider").owlCarousel({
-              navigation : true,
-              slideSpeed : 300,
-              paginationSpeed : 400,
-              singleItem : true
-
-          });
-      });
-
-      //custom select box
-
-      $(function(){
-          $('select.styled').customSelect();
-      });
-	  
-	  /* ---------- Map ---------- */
-	$(function(){
-	  $('#map').vectorMap({
-	    map: 'world_mill_en',
-	    series: {
-	      regions: [{
-	        values: gdpData,
-	        scale: ['#000', '#000'],
-	        normalizeFunction: 'polynomial'
-	      }]
-	    },
-		backgroundColor: '#eef3f7',
-	    onLabelShow: function(e, el, code){
-	      el.html(el.html()+' (GDP - '+gdpData[code]+')');
-	    }
-	  });
-	});
-
-
-
-  </script>
 
   </body>
 </html>

@@ -34,16 +34,13 @@
      
       
       <header class="header blue-bg">
-            <div class="toggle-nav">
-                <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"><i class="icon_menu"></i></div>
-            </div>
 
             <!--logo start-->
             <!-- a href="media.php?module=media" class="logo" style="color:white"><span class="photo"><img src="img/logocon.png" style="margin-top:-10px"></span>Concertino </a -->
             <a href = "index.html" class="logo" style="color:white">Room Reservation</a>
             <!--logo end-->
 
-            <div class="nav search-row" id="top_menu">
+            <div class="nav main-row" id="top_menu">
                 <!--  search form start -->
                 <ul class="nav top-menu">                    
                                    
@@ -57,7 +54,7 @@
 				<!-- user login dropdown start-->
                     <li class="dropdown">
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                            <span style='font-size:15px; color: white'>Sign In / Sign up</span>
+                            <span style='font-size:15px; color: white'>Sign In / Sign up <i class="fa fa-caret-down"></i></span>
                             <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu extended Log In">
@@ -118,21 +115,18 @@
               <!-- sidebar menu start-->
               <ul class="sidebar-menu">                
                   <li class="active">
-                      <a class="" href="media.php?module=media">
+                      <a class="" href="index.html">
                           <i class="icon_house_alt"></i>
                           <span>Home</span>
                       </a>
                   </li>
 				  <li class="sub-menu">
-                      <a href="javascript:;" class="">
-                          <i class="icon_document_alt"></i>
-                          <span>Forms</span>
-                          <span class="menu-arrow arrow_carrot-right"></span>
+                      <a href="reservation_form.html" class="">
+                          <i class="icon_document_alt"></i><span>Reservation Form</span>
                       </a>
-                      <ul class="sub">
-                          <li><a class="" href="reservation_form.html">Reservation Form</a></li>                          
-                          <li><a class="" href="#">Cancelation Form</a></li>
-                      </ul>
+                      <a href="#" class="">
+                        <i class="icon_document_alt"></i><span>Cancelation Form</span>
+                    </a>
                   </li>       
               </ul>
               <!-- sidebar menu end-->
@@ -142,8 +136,9 @@
       
       <!--main content start-->
       <section id="main-content">
-          <section class="wrapper">            
-            <?php include "content.php"; ?>
+          <section class="wrapper">      
+          
+   
           </section>
       </section>
       <!--main content end-->

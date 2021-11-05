@@ -262,3 +262,14 @@ ul.top-menu > li > a:hover, ul.top-menu > li > a:focus {
   padding: 10px 15px;
   border-bottom: 1px solid transparent;  
 }
+
+.footer {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 88.3%;
+    background : #57889c;
+    background-color : #57889c;
+    color: white;
+    text-align: center;
+  }

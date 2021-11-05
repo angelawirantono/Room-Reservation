@@ -249,6 +249,7 @@ ul.top-menu > li > a:hover, ul.top-menu > li > a:focus {
 
 .panel {
   margin-bottom: 20px;
+  height: 570px;
   background-color: #ffffff;
   border: 0px solid transparent;  
   -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
@@ -271,5 +272,11 @@ ul.top-menu > li > a:hover, ul.top-menu > li > a:focus {
     background : #57889c;
     background-color : #57889c;
     color: white;
+    text-align: center;
+  }
+
+  table, th, td {
+    border: 1px solid rgb(190, 186, 186);
+    width: 1000px;
     text-align: center;
   }

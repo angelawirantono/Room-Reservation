@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Records {% endblock %}</h1>
+{% if g.user %}
+<a class="action" href="{{ url_for('booking.book') }}">Make a Reservation</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<table class="reservation">
+    <tr>
+        <td>No.</td>
+        <td>Room</td>
+        <td>User</td>
+        <td>Date</td>
+        <td>Time</td>
+        <td></td>
+    </tr>
+    {% for record in records %}
+
+    <tr>
+        <td> Reservation {{ record['id'] }}</td>
+        <div class="about">
+            <td>{{ record['room_id'] }} </td>
+            <td>{{ record['username'] }}</td>
+            <td>{{ record['book_time'].strftime('%Y-%m-%d') }}</td>
+            <td>{{ record['time_begin'] }} - {{ record['time_end'] }}</td>
+        </div>
+        {% if g.user['id'] == record['user_id'] %}
+        <td><a class="action" href="{{ url_for('booking.edit', id=record['id']) }}">Edit</a></td>
+        {% endif %}
+    </tr>
+
+
+    {% if not loop.last %}
+    <hr>
+    {% endif %}
+    {% endfor %}
+</table>
+
+{% endblock %}

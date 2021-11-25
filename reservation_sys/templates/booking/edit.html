@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block header %}
+  <h1>{% block title %}Edit{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<table>
+    <thead>
+        <tr>
+            <td>No.</td>
+            <td>Room</td>
+            <td>Date</td>
+            <td>Time</td>
+        </tr>
+    </thead>
+    {% for reservation in data %}
+        <td></td>
+    {% endfor %}
+</table>
+
+{% endblock %}

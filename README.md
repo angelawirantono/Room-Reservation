@@ -1,8 +1,8 @@
 # Room-Reservation
 
 ## How to run
-Make sure to do the following while pwd is outside of `reservation_sys` and `instance` directories
-1. Type `$env:FLASK_APP = "reservation_sys"`
+Make sure to do the following while pwd is outside of `project` and `instance` directories
+1. Type `$env:FLASK_APP = "project"`
 2. Type `$env:FLASK_ENV = "development"`
 3. Type `flask run`
 

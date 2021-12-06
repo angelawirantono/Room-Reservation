@@ -15,7 +15,7 @@ This project uses multiple Flask extensions. To install all the requirements, ru
 ## Before running
 The database must be initialized before running the app. 
 There exists several `CLI commands` to directly modify the database.
-> `flask init-db` Overwrites existing database, creates a new one right after.
-> `flask drop-db` Drops existing database.
-> `flask create-admin` Creates admin account.
+> `flask init-db` Overwrites existing database, creates a new one right after.   
+> `flask drop-db` Drops existing database.   
+> `flask create-admin` Creates admin account.   
   

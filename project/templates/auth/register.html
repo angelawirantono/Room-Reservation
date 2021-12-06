@@ -6,10 +6,19 @@
 
 {% block content %}
   <form method="post">
+    {{ form.csrf_token }}
+    <label for="name">Name</label>
+    {{ form.name(placeholder="name") }}
+    
     <label for="username">Username</label>
-    <input name="username" id="username" required>
+    {{ form.username(placeholder="username") }}
+
+    <label for="email">Email</label>
+    {{ form.email(placeholder="email") }}
+
     <label for="password">Password</label>
-    <input type="password" name="password" id="password" required>
+    {{ form.password(placeholder="password") }}
+
     <input type="submit" value="Register">
   </form>
 {% endblock %}

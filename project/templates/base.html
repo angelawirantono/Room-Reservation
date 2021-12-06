@@ -34,7 +34,7 @@
 
             <!--logo start-->
             <!-- a href="media.php?module=media" class="logo" style="color:white"><span class="photo"><img src="img/logocon.png" style="margin-top:-10px"></span>Concertino </a -->
-            <a href="base.html" class="logo" style="color:white">Room Reservation</a>
+            <a href="{{ url_for('main.home') }}" class="logo" style="color:white">Room Reservation</a>
             <!--logo end-->
 
             <div class="nav main-row" id="top_menu">
@@ -52,7 +52,7 @@
                     <li class="dropdown">
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                             <span style='font-size:15px; color: white'>
-                                {% if g.user %}
+                                {% if current_user.is_authenticated %}
                                 Profile
                                 {% else %}
                                 Log In / Register
@@ -62,7 +62,7 @@
                         </a>
                         <ul class="dropdown-menu extended Log In">
                             <div class="log-arrow-up"></div>
-                            {% if g.user %}
+                            {%  if current_user.is_authenticated %}
                             <li>
                                 <a href="{{ url_for('auth.logout') }}"><i class="fa fa-sign-out"></i> Log Out</a>
                             </li>
@@ -164,7 +164,7 @@
                 <!-- sidebar menu start-->
                 <ul class="sidebar-menu">
                     <li class="active">
-                        <a class="" href="dashboard.html">
+                        <a class="" href="{{ url_for('main.home') }}">
                             <i class="fa fa-home"></i> Home
                         </a>
                     </li>

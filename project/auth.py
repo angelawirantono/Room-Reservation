@@ -6,7 +6,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_user, login_required, logout_user
 from project.models import User
 from project.forms import RegisterForm,  LoginForm
-from project import db, login_manager
+from project import db, login_manager, mail,app
+from flask_mail import Message
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -25,9 +26,21 @@ def register():
             generate_password_hash(form.password.data)
             )
 
+        subject = 'Registration'
+        html = render_template('mail.html')
+        msg = Message(
+                subject,
+                recipients=[form.email.data],
+                html=html
+            )
+
+        mail.send(msg)
+        
         db.session.add(user)
         db.session.commit()
         
+        
+
         login_user(user)
         
         flash('registered')

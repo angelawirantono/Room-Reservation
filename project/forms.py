@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from sqlalchemy.orm import defaultload
 from wtforms import StringField, PasswordField, RadioField
-from wtforms.fields.datetime import DateField, DateTimeField, TimeField
+from wtforms.fields.datetime import DateField, TimeField
 from wtforms.validators import DataRequired, Email
 import datetime
 

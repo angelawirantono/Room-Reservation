@@ -5,10 +5,8 @@ from werkzeug.exceptions import abort
 from datetime import datetime
 
 from flask_login import login_required, current_user
-from project.forms import ReservationForm
-from project.models import Reservation
-from project import db
-from project.auth import login_manager
+from .forms import ReservationForm
+from .models import db, Reservation
 
 bp = Blueprint('booking', __name__, url_prefix='/booking')
 

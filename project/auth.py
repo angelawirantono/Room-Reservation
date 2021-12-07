@@ -4,16 +4,12 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask_login import login_user, login_required, logout_user
-from project.models import User
-from project.forms import RegisterForm,  LoginForm
-from project import db, login_manager, mail,app
+from .models import User
+from .forms import RegisterForm,  LoginForm
 from flask_mail import Message
+from .models import db
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.filter(User.id == int(user_id)).first()
+bp = Blueprint('auth_bp', __name__, url_prefix='/auth')
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
@@ -34,13 +30,11 @@ def register():
                 html=html
             )
 
-        mail.send(msg)
+        # mail.send(msg)
         
         db.session.add(user)
         db.session.commit()
-        
-        
-
+    
         login_user(user)
         
         flash('registered')
@@ -65,4 +59,4 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('auth_bp.login'))

@@ -68,10 +68,10 @@
                             </li>
                             {% else %}
                             <li>
-                                <a data-toggle="modal" href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i> Log in</a>
+                                <a data-toggle="modal" href="{{ url_for('auth_bp.login') }}"><i class="fa fa-user"></i> Log in</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="modal" href="{{ url_for('auth.register') }}"><i
+                                <a class="nav-link" data-toggle="modal" href="{{ url_for('auth_bp.register') }}"><i
                                         class="fa fa-user-plus"></i> Register</a>
                             </li>
                             {% endif %}

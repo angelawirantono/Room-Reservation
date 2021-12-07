@@ -1,5 +1,4 @@
-from project import app, db
-from project.models import User
+from project.models import db, User
 import click
 from flask.cli import with_appcontext
 from werkzeug.security import generate_password_hash
@@ -18,7 +17,6 @@ def init_db_command():
     """Overwrite  db tables"""
     if db:
         db.drop_all()
-        click.echo('Existing database dropped.')
 
     db.create_all()
     click.echo('Database initialized.')
@@ -30,7 +28,6 @@ def create_admin_command():
     db.session.add(User('admin','System Admin', 'admin@admin.com', generate_password_hash('admin'), admin=True))
     db.session.commit()
     click.echo('Created admin account.')
-
 
 def init_app(app):
     app.cli.add_command(init_db_command)

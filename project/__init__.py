@@ -1,8 +1,9 @@
 import os
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, Blueprint
 from flask_login import LoginManager
 from flask_mail import Mail
+from config import DevelopmentConfig
+from .models import db, User
 
 app = Flask(__name__)
 
@@ -17,16 +18,15 @@ except OSError:
 
 # app.config['SECRET_KEY'] = 'dev'
 
-app.config.from_object('project.config.DevelopmentConfig')
+app.config.from_object(DevelopmentConfig)
+
+db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-db = SQLAlchemy(app)
+
 mail = Mail()
 mail.init_app(app)
-
-login_manager.login_view = "auth.login"
-login_manager.login_message_category = "info"
 
 import manage
 manage.init_app(app)
@@ -41,3 +41,9 @@ app.register_blueprint(auth.bp)
 from . import booking
 app.register_blueprint(booking.bp)
 
+login_manager.login_view = "auth_bp.login"
+login_manager.login_message_category = "info"
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.filter(User.id == int(user_id)).first()

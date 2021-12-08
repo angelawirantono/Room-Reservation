@@ -1,7 +1,6 @@
 import os
 from flask import Flask, Blueprint
 from flask_login import LoginManager
-from flask_mail import Mail
 from config import DevelopmentConfig
 from .models import db, User
 
@@ -24,9 +23,6 @@ db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-mail = Mail()
-mail.init_app(app)
 
 import manage
 manage.init_app(app)

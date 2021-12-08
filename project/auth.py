@@ -6,7 +6,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_user, login_required, logout_user
 from .models import User
 from .forms import RegisterForm,  LoginForm
-from flask_mail import Message
 from .models import db
 
 bp = Blueprint('auth_bp', __name__, url_prefix='/auth')
@@ -24,11 +23,11 @@ def register():
 
         subject = 'Registration'
         html = render_template('mail.html')
-        msg = Message(
-                subject,
-                recipients=[form.email.data],
-                html=html
-            )
+        # msg = Message(
+        #         subject,
+        #         recipients=[form.email.data],
+        #         html=html
+        #     )
 
         # mail.send(msg)
         

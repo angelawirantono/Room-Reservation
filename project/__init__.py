@@ -41,7 +41,7 @@ app.register_blueprint(booking.booking_bp)
 from . import mail
 mail.mail.init_app(app)
 
-login_manager.login_view = "auth_bp.login"
+login_manager.login_view = "auth.login"
 login_manager.login_message_category = "info"
 
 @login_manager.user_loader

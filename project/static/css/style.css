@@ -4,7 +4,7 @@
 
 body {
     color: #797979;
-    background: #eeeeee;
+    background: #ffffff;
     font-family: 'Lato', sans-serif;
     padding: 0px !important;
     margin: 0px !important;
@@ -250,10 +250,10 @@ ul.top-menu > li > a:hover, ul.top-menu > li > a:focus {
 .panel {
   margin-bottom: 20px;
   height: 570px;
-  background-color: #ffffff;
+  /*background-color: #ffffff;*/
   border: 0px solid transparent;  
-  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  /*-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);*/
 }
 .panel-body {
   padding: 15px;

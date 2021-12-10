@@ -110,7 +110,7 @@ def edit(id):
     # return render_template('booking/edit.html', reservation=reservation)
     return render_template('booking/edit.html', record=record, form=form)
 
-@booking_bp.route('/<int:id>/cancel', methods=('POST',))
+@booking_bp.route('/<int:id>/cancel', methods=('POST','GET'))
 @login_required
 def cancel(id):
     db.session.query(Reservation).filter(Reservation.id==id).delete()

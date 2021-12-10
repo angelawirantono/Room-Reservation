@@ -64,14 +64,14 @@
                             <div class="log-arrow-up"></div>
                             {%  if current_user.is_authenticated %}
                             <li>
-                                <a href="{{ url_for('auth.logout') }}"><i class="fa fa-sign-out"></i> Log Out</a>
+                                <a href="{{ url_for('auth_bp.logout') }}"><i class="fa fa-sign-out"></i> Log Out</a>
                             </li>
                             {% else %}
                             <li>
-                                <a data-toggle="modal" href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i> Log in</a>
+                                <a data-toggle="modal" href="{{ url_for('auth_bp.login') }}"><i class="fa fa-user"></i> Log in</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="modal" href="{{ url_for('auth.register') }}"><i
+                                <a class="nav-link" data-toggle="modal" href="{{ url_for('auth_bp.register') }}"><i
                                         class="fa fa-user-plus"></i> Register</a>
                             </li>
                             {% endif %}
@@ -170,10 +170,7 @@
                     </li>
                     <li class="sub-menu">
                         <a href="{{ url_for('booking.book') }}" class="">
-                            <i class="fa fa-file-text-o"></i> Reservation Form
-                        </a>
-                        <a href="cancel_form.html" class="">
-                            <i class="fa fa-file-text-o"></i> Cancelation Form
+                            <i class="fa fa-file-text-o"></i> Reservation
                         </a>
                     </li>
                     <li class="sub-menu">

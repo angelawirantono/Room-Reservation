@@ -16,6 +16,7 @@
         <td>Date</td>
         <td>Time</td>
         <td></td>
+        <td></td>
     </tr>
     {% for record in records %}
 
@@ -29,6 +30,7 @@
         </div>
         {% if current_user.id == record['user_id'] %}
         <td><a class="action" href="{{ url_for('booking.edit', id=record['id']) }}">Edit</a></td>
+        <td><a class="action" href="{{ url_for('booking.cancel', id=record['id']) }}">Cancel</a></td>
         {% endif %}
     </tr>
 

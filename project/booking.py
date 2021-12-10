@@ -8,14 +8,14 @@ from flask_login import login_required, current_user
 from .forms import ReservationForm
 from .models import db, Reservation
 
-bp = Blueprint('booking', __name__, url_prefix='/booking')
+booking_bp = Blueprint('booking', __name__, url_prefix='/booking')
 
-@bp.route('/')
+@booking_bp.route('/')
 def index():
     reservation = Reservation.query.all()
     return render_template('booking/index.html', records=reservation)
 
-@bp.route('/book', methods=('GET', 'POST'))
+@booking_bp.route('/book', methods=('GET', 'POST'))
 @login_required
 def book():
     form = ReservationForm()
@@ -55,28 +55,65 @@ def book():
 
 #     return reservation
 
-def check_availability(room_id, booked_date, time_start,time_end):
-    records = db.session.query(Reservation).filter_by(booked_date=booked_date).all()
+def check_availability(room_id, booked_date, time_start,time_end, edit_id=None):
+    # records = db.session.query(Reservation).filter_by(booked_date=booked_date).all()
+    records = db.session.query(Reservation).filter(Reservation.booked_date==booked_date).all()
+
+    if edit_id != None:
+        records = db.session.query(Reservation).filter(Reservation.id!=edit_id, Reservation.booked_date==booked_date).all()
+
     for rec in records:
         if rec.room_id == room_id \
-             and (rec.time_start >= time_start and time_start <= rec.time_start) \
-             and (rec.time_end >= time_end and time_end <= rec.time_end):
+             and (rec.time_start >= time_start and time_start <= rec.time_end) \
+             and (rec.time_start >= time_end and time_end <= rec.time_end):
             return False
     return True
 
-@bp.route('/<int:id>/edit', methods=('GET', 'POST'))
+@booking_bp.route('/<int:id>/edit', methods=('GET', 'POST'))
 @login_required
-def edit():    
-            #return redirect(url_for('booking.index'))
+def edit(id):
+    record = db.session.query(Reservation).filter(Reservation.id==id).first()
+    
+    form = ReservationForm()
+    
+
+    if request.method == 'POST' and form.is_submitted():
+        # reservation = Reservation(
+        #         current_user.id, 
+        #         form.room_id.data, 
+        #         datetime.now(), 
+        #         form.booked_date.data, 
+        #         form.time_start.data, 
+        #         form.time_end.data
+        #         )
+
+        if check_availability(form.room_id.data, form.booked_date.data, form.time_start.data, form.time_end.data, id):
+            db.session.query(Reservation).filter(Reservation.id==id).update(
+                dict(room_id=form.room_id.data,
+                    booked_date=form.booked_date.data,
+                    time_start=form.time_start.data,
+                    time_end=form.time_end.data))
+            db.session.commit()
+            return redirect(url_for('booking.index'))
+        else:
+            flash(f'Room {form.room_id.data} is unavailable on {form.booked_date.data} at {form.time_start.data} - {form.time_end.data}')
+
+            
+        return redirect(url_for('booking.index'))
+    else:
+        form.room_id.default = record.room_id
+        form.booked_date.default = record.booked_date
+        form.time_start.default = record.time_start
+        form.time_end.default = record.time_end
+        form.process()
 
     # return render_template('booking/edit.html', reservation=reservation)
-    return render_template('booking/edit.html')
+    return render_template('booking/edit.html', record=record, form=form)
 
-# @bp.route('/<int:id>/delete', methods=('POST',))
-# @login_required
-# def delete(id):
-#     get_reservation(id)
-#     db = get_db()
-#     db.execute('DELETE FROM reservation WHERE id = ?', (id,))
-#     db.commit()
-#     return redirect(url_for('booking.index'))
+@booking_bp.route('/<int:id>/cancel', methods=('POST',))
+@login_required
+def cancel(id):
+    db.session.query(Reservation).filter(Reservation.id==id).delete()
+    db.session.commit()
+
+    return redirect(url_for('booking.index'))

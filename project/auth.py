@@ -7,10 +7,11 @@ from flask_login import login_user, login_required, logout_user
 from .models import User
 from .forms import RegisterForm,  LoginForm
 from .models import db
+from .mail import send_msg
 
-bp = Blueprint('auth_bp', __name__, url_prefix='/auth')
+auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-@bp.route('/register', methods=('GET', 'POST'))
+@auth_bp.route('/register', methods=('GET', 'POST'))
 def register():
     form = RegisterForm(request.form)
     if form.validate_on_submit():
@@ -22,14 +23,10 @@ def register():
             )
 
         subject = 'Registration'
-        html = render_template('mail.html')
-        # msg = Message(
-        #         subject,
-        #         recipients=[form.email.data],
-        #         html=html
-        #     )
+        mail_html = render_template('mail.html')
 
-        # mail.send(msg)
+        send_msg(subject, [form.email.data], mail_html)
+        
         
         db.session.add(user)
         db.session.commit()
@@ -41,7 +38,7 @@ def register():
 
     return render_template('auth/register.html', form=form)
 
-@bp.route('/login', methods=('GET', 'POST'))
+@auth_bp.route('/login', methods=('GET', 'POST'))
 def login():
     form = LoginForm(request.form)
     if form.validate_on_submit():
@@ -54,8 +51,8 @@ def login():
             flash('Failed to login')      
     return render_template('auth/login.html', form=form)
 
-@bp.route('/logout')
+@auth_bp.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('auth_bp.login'))
+    return redirect(url_for('auth.login'))

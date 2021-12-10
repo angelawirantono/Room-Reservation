@@ -1,11 +1,10 @@
-from project import mail
-from flask_mail import Message
+from flask_mail import Mail, Message
 
-from flask import Blueprint
+mail = Mail()
 
-bp = Blueprint('mail', __name__, url_prefix='/mail')
+def send_msg(subject, recipients, html):
+    msg = Message(subject=subject, 
+                recipients=recipients,
+                html=html)
 
-@bp.route('/')
-def index():
-    msg = Message("Hello",
-                recipients=["zegryu@gmail.com"])
+    mail.send(msg)

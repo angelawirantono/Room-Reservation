@@ -1,22 +1,64 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Edit{% endblock %}</h1>
+<h1>{% block title %}Edit Reservation{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-<table>
-    <thead>
-        <tr>
-            <td>No.</td>
-            <td>Room</td>
-            <td>Date</td>
-            <td>Time</td>
-        </tr>
-    </thead>
-    {% for reservation in data %}
-        <td></td>
-    {% endfor %}
-</table>
+<form class="form" method="post">
+    <div class="row">
+        <div class="col-lg-12">
+            <section class="panel">
+                <header class="panel-heading">
+                    <h3><i class="fa fa-file-text-o"></i> Reservation Form</h3>
+                </header>
+                <div class="panel-body">
+                    <form class="form-horizontal " method="get">
+                        <div class="form-group">
+                            <label class="control-label col-lg-2" for="inputSuccess">Room</label>
+                            <div class="col-lg-10">
+                                <div class="radio">
+                                    {% for subfield in form.room_id %}
+                                    <label>{{ subfield }} {{ subfield.label }}</label><br>
+                                    {% endfor %}
 
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Date</label>
+                            <div class="col-sm-2">
+                                {{ form.booked_date(valuer="record.booked_date") }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Time</label>
+                            <div class="col-sm-2">
+                                <!--input type="time" class="round-input" style="border-width:2px"><input type="time" class="round-input"-->
+                                {{ form.time_start(placeholder="") }}
+                                -
+                                {{ form.time_end(placeholder="") }}
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-lg-2" for="inputSuccess">Participants:
+                                <input list="members" name="memberList" />
+                        </div></label>
+                        <datalist>
+                        </datalist>
+                </div>
+                <div class="form-group">
+                    <div class="col-lg-offset-2 col-lg-10">
+                        <input type="submit" class="btn btn-success" value="Submit">
+                        <button type="reset" class="btn btn-danger">Clear Form</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    {{ form.csrf_token }}
+
+</form>
 {% endblock %}

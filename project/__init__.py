@@ -18,6 +18,7 @@ except OSError:
 # app.config['SECRET_KEY'] = 'dev'
 
 app.config.from_object(DevelopmentConfig)
+app.config.from_pyfile('../acc.cfg')
 
 db.init_app(app)
 
@@ -28,16 +29,19 @@ import manage
 manage.init_app(app)
 
 from . import main
-app.register_blueprint(main.bp)
+app.register_blueprint(main.main_bp)
 app.add_url_rule('/', endpoint='index')
 
 from . import auth
-app.register_blueprint(auth.bp)
+app.register_blueprint(auth.auth_bp)
 
 from . import booking
-app.register_blueprint(booking.bp)
+app.register_blueprint(booking.booking_bp)
 
-login_manager.login_view = "auth_bp.login"
+from . import mail
+mail.mail.init_app(app)
+
+login_manager.login_view = "auth.login"
 login_manager.login_message_category = "info"
 
 @login_manager.user_loader

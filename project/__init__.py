@@ -4,6 +4,9 @@ from flask_login import LoginManager
 from config import DevelopmentConfig
 from .models import db, User
 
+OPEN_HOURS = (8,24)
+NO_OF_ROOMS = 5
+
 app = Flask(__name__)
 
 # ensure the instance folder exists
@@ -41,7 +44,7 @@ app.register_blueprint(booking.booking_bp)
 from . import mail
 mail.mail.init_app(app)
 
-login_manager.login_view = "auth_bp.login"
+login_manager.login_view = "auth.login"
 login_manager.login_message_category = "info"
 
 @login_manager.user_loader

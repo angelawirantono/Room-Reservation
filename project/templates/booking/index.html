@@ -23,9 +23,10 @@
     <tr>
         <td> Reservation {{ record['id'] }}</td>
         <div class="about">
-            <td>{{ record['room_id'] }} </td>
+            <!-- <td>{{ record['room_id'] }} </td> -->
             <td>{{ record['user_id'] }}</td>
-            <td>{{ record['booking_time'].strftime('%Y-%m-%d') }}</td>
+            <!-- <td>{{ record['booking_time'].strftime('%Y-%m-%d') }}</td> -->
+            <td>{{ record['booked_date'] }}</td>
             <td>{{ record['time_start'] }} - {{ record['time_end'] }}</td>
         </div>
         {% if current_user.id == record['user_id'] %}

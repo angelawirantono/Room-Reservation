@@ -42,13 +42,15 @@ class Reservation(db.Model):
     booked_date = db.Column(db.Date, nullable=False)
     time_start = db.Column(db.Time, nullable=False)
     time_end = db.Column(db.Time, nullable=False)
+    participants = db.Column(db.String)
 
-    def __init__(self, user_id, room_id, booking_time, booked_date, time_start, time_end):
+    def __init__(self, user_id, room_id, booking_time, booked_date, time_start, time_end, party_list):
         self.user_id  = user_id 
         self.room_id = room_id
         self.booking_time = booking_time
         self.booked_date = booked_date
         self.time_start = time_start
         self.time_end = time_end
+        self.participants = ','.join(f'{username}' for username in party_list)
 
     

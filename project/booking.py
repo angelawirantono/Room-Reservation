@@ -5,8 +5,10 @@ from werkzeug.exceptions import abort
 from datetime import datetime
 
 from flask_login import login_required, current_user
+from wtforms import widgets
 from .forms import ReservationForm
-from .models import db, Reservation
+from .models import db, Reservation, User
+from . import NO_OF_ROOMS, OPEN_HOURS
 
 booking_bp = Blueprint('booking', __name__, url_prefix='/booking')
 
@@ -15,18 +17,37 @@ def index():
     reservation = Reservation.query.all()
     return render_template('booking/index.html', records=reservation)
 
+def get_participants():
+    participants = db.session.query(User.username, User.name).all()
+    return participants
+
+def get_reservations():
+    reservations = db.session.query(Reservation.booked_date, Reservation.time_start, Reservation.time_end).all()
+    return reservations
+
 @booking_bp.route('/book', methods=('GET', 'POST'))
 @login_required
 def book():
     form = ReservationForm()
+    party_list = [p for p in get_participants() if (p[0] != current_user.username)]
+    form.participants.choices = [p[1] for p in party_list]
+    records = get_reservations()
+
     if request.method == 'POST' and form.validate_on_submit():
+        party_username = []
+        for p_form in form.participants.data:
+            party_username.append(party_list[[p[1] for p in party_list].index(p_form)])
+
+        print(party_username)
+
         reservation = Reservation(
                 current_user.id, 
                 form.room_id.data, 
                 datetime.now(), 
                 form.booked_date.data, 
                 form.time_start.data, 
-                form.time_end.data
+                form.time_end.data, 
+                party_username
                 )
 
         if check_availability(form.room_id.data, form.booked_date.data, form.time_start.data, form.time_end.data):
@@ -36,8 +57,13 @@ def book():
             return redirect(url_for('booking.index'))
 
         flash(f'Room {form.room_id.data} is unavailable on {form.booked_date.data} at {form.time_start.data} - {form.time_end.data}')
+    # else:
+    #     form.booked_date.default = record.booked_date
+    #     form.time_start.default = record.time_start
+    #     form.time_end.default = record.time_end
+    #     form.process()
 
-    return render_template('booking/book.html', form=form)
+    return render_template('booking/book.html', form=form, participants=party_list, hours=OPEN_HOURS, no_of_rooms=NO_OF_ROOMS, records=records)
     
 # def get_reservation(id, check_author=True):
 #     reservation = get_db().execute(
@@ -78,14 +104,6 @@ def edit(id):
     
 
     if request.method == 'POST' and form.is_submitted():
-        # reservation = Reservation(
-        #         current_user.id, 
-        #         form.room_id.data, 
-        #         datetime.now(), 
-        #         form.booked_date.data, 
-        #         form.time_start.data, 
-        #         form.time_end.data
-        #         )
 
         if check_availability(form.room_id.data, form.booked_date.data, form.time_start.data, form.time_end.data, id):
             db.session.query(Reservation).filter(Reservation.id==id).update(
@@ -117,3 +135,8 @@ def cancel(id):
     db.session.commit()
 
     return redirect(url_for('booking.index'))
+
+@booking_bp.route('status', methods=('POST', 'GET'))
+def status():
+    records = get_reservations()
+    return render_template('status.html', hours=OPEN_HOURS, no_of_rooms=NO_OF_ROOMS, records=records)

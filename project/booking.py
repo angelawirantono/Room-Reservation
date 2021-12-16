@@ -5,10 +5,10 @@ from werkzeug.exceptions import abort
 from datetime import datetime
 
 from flask_login import login_required, current_user
-from wtforms import widgets
 from .forms import ReservationForm
 from .models import db, Reservation, User
 from . import NO_OF_ROOMS, OPEN_HOURS
+import json
 
 booking_bp = Blueprint('booking', __name__, url_prefix='/booking')
 
@@ -22,7 +22,18 @@ def get_participants():
     return participants
 
 def get_reservations():
-    reservations = db.session.query(Reservation.booked_date, Reservation.time_start, Reservation.time_end).all()
+    reservations = {}
+    for r in db.session.query(Reservation).all():
+        reservations[r.id] = {
+            'room_id' : r.room_id,
+            'username ':r.username ,
+            'room_id':r.room_id,
+            'booking_time':r.booking_time,
+            'booked_date ':r.booked_date ,
+            'time_start ':r.time_start,
+            'time_end':r.time_end,
+            'participants':r.participants
+        }
     return reservations
 
 @booking_bp.route('/book', methods=('GET', 'POST'))
@@ -31,7 +42,6 @@ def book():
     form = ReservationForm()
     party_list = [p for p in get_participants() if (p[0] != current_user.username)]
     form.participants.choices = [p[1] for p in party_list]
-    records = get_reservations()
 
     if request.method == 'POST' and form.validate_on_submit():
         party_username = []
@@ -41,7 +51,7 @@ def book():
         print(party_username)
 
         reservation = Reservation(
-                current_user.id, 
+                current_user.username, 
                 form.room_id.data, 
                 datetime.now(), 
                 form.booked_date.data, 
@@ -51,7 +61,6 @@ def book():
                 )
 
         if check_availability(form.room_id.data, form.booked_date.data, form.time_start.data, form.time_end.data):
-            
             db.session.add(reservation)
             db.session.commit()
             return redirect(url_for('booking.index'))
@@ -63,7 +72,7 @@ def book():
     #     form.time_end.default = record.time_end
     #     form.process()
 
-    return render_template('booking/book.html', form=form, participants=party_list, hours=OPEN_HOURS, no_of_rooms=NO_OF_ROOMS, records=records)
+    return render_template('booking/book.html', form=form, participants=party_list, hours=OPEN_HOURS, no_of_rooms=NO_OF_ROOMS)
     
 # def get_reservation(id, check_author=True):
 #     reservation = get_db().execute(
@@ -136,7 +145,8 @@ def cancel(id):
 
     return redirect(url_for('booking.index'))
 
-@booking_bp.route('status', methods=('POST', 'GET'))
+
+@booking_bp.route('status', methods=('GET', ))
 def status():
     records = get_reservations()
-    return render_template('status.html', hours=OPEN_HOURS, no_of_rooms=NO_OF_ROOMS, records=records)
+    return render_template('status.html', hours=OPEN_HOURS, no_of_rooms=NO_OF_ROOMS, records=json.dumps(records, default=str))

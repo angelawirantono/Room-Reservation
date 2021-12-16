@@ -36,7 +36,7 @@ class User(db.Model):
 
 class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
+    username  = db.Column(db.Integer, nullable=False)
     room_id = db.Column(db.Integer, nullable=False)
     booking_time = db.Column(db.DateTime, nullable=False)
     booked_date = db.Column(db.Date, nullable=False)
@@ -44,8 +44,8 @@ class Reservation(db.Model):
     time_end = db.Column(db.Time, nullable=False)
     participants = db.Column(db.String)
 
-    def __init__(self, user_id, room_id, booking_time, booked_date, time_start, time_end, party_list):
-        self.user_id  = user_id 
+    def __init__(self, username, room_id, booking_time, booked_date, time_start, time_end, party_list):
+        self.username  = username 
         self.room_id = room_id
         self.booking_time = booking_time
         self.booked_date = booked_date

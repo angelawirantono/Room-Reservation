@@ -20,20 +20,32 @@
             <td>{{ i ~":00 - " ~ (i+1) ~ ":00"}}</td>
             {% for j in range(1, no_of_rooms + 1) %}
             <td></td>
-            {% endfor %}
+            {% endfor %}   
         </tr>
         {% endfor %}
+        {{records}}
     </table>
 </div>
 
 {% endblock %}
 
 {% block script %}
-<script>
+<script type="text/javascript">
     document.getElementById('datePicker').valueAsDate = new Date();
     function updateTable(){
         var date = document.getElementById("selected_date");
-        
+        var data = {{ records | safe }};
+        console.log(typeof(data));
+        console.log((data));
+
+        var words = data.split(',');
+        for(var i=0;i<words.length;i++){
+            console.log(words[i]);
+        }
+
+        // for(var i=0;i< data.length;i++){
+        //     console.log(data);
+        // }
     }
 </script>
 {% endblock %}

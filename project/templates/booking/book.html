@@ -1,26 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}New {% endblock %}
 {% block header %}
-<style>
-    #myUL li a {
-        border: 1px solid #ddd;
-        /* Add a border to all links */
-        margin-top: -1px;
-        /* Prevent double borders */
-        background-color: #f6f6f6;
-        /* Grey background color */
-        padding: 12px;
-        /* Add some padding */
-        text-decoration: none;
-        /* Remove default text underline */
-        font-size: 18px;
-        /* Increase the font-size */
-        color: black;
-        /* Add a black text color */
-        display: block;
-        /* Make it into a block element to fill the whole list */
-    }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -60,10 +40,10 @@
 
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" onblur="hideList()">
                             <label class="control-label col-lg-2" for="inputSuccess">Participants:</label>
-                            <div class="col-lg-10" width=50>
-                                <input type="text" id="myInput" onfocus="searchName();showList();" onblur="hideList()"
+                            <div class="col-lg-10" width=50 onfocus="showList()" onblur="hideList()"tabindex="0">
+                                <input type="text" id="myInput" onfocus="searchName();showList();" 
                                     placeholder="Search for names..">
                                 <div id="party_checklist" style="display:none">
                                     {{ form.participants(onclick="checkParticipant()") }}
@@ -83,7 +63,7 @@
                     <div class="col-lg-10">
                         <input type="submit" class="btn btn-success" value="Submit">
                         <input type="reset" class="btn btn-danger" value="Clear Form">
-                        <button type="button" class="btn" onclick="showSchedule()">Schedule</button>
+                        <button type="button" class="btn" onsubmit="showSchedule()">Schedule</button>
                         <div>
                             Schedule Here!
                             <table id="schedule" style="display: none;">

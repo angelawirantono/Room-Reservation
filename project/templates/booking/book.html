@@ -40,20 +40,20 @@
 
                             </div>
                         </div>
-                        <div class="form-group" onblur="hideList()">
+                        <div class="form-group" onfocus="showList()" onblur="hideList()">
                             <label class="control-label col-lg-2" for="inputSuccess">Participants:</label>
-                            <div class="col-lg-10" width=50 onfocus="showList()" onblur="hideList()"tabindex="0">
+                            <div class="col-lg-10" width=50  onblur="hideList()"tabindex="0">
                                 <input type="text" id="myInput" onfocus="searchName();showList();" 
                                     placeholder="Search for names..">
                                 <div id="party_checklist" style="display:none">
-                                    {{ form.participants(onclick="checkParticipant()") }}
+                                    {{ form.party(onclick="checkParticipant()") }}
                                 </div>
                             </div>
                         </div>
                         <!--Show checked participants, defaulted display: none, revealed when checked-->
                         <div id="participant_list_txt">
                             <ul id="party_list">
-                                {% for participant in participants %}
+                                {% for participant in party %}
                                 <li id="li2" style="display:none">{{ participant.name }}</li>
                                 {% endfor %}
                             </ul>
@@ -107,7 +107,7 @@
         var input, filter, ul, li, i, txtValue;
         input = document.getElementById('myInput');
         filter = input.value.toUpperCase();
-        ul = document.getElementById("participants");
+        ul = document.getElementById("party_checklist");
         li = ul.getElementsByTagName('li');
         // Loop through all list items, and hide those who don't match the search query
         for (i = 0; i < li.length; i++) {
@@ -126,7 +126,7 @@
 
     function checkParticipant() {
         var ul, li, list, ul2, li2, i;
-        ul = document.getElementById("participants");
+        ul = document.getElementById("party_checklist");
         li = ul.getElementsByTagName("li");
 
         ul2 = document.getElementById("party_list");

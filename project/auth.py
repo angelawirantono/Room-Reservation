@@ -23,7 +23,7 @@ def register():
             )
 
         subject = 'Registration'
-        mail_html = render_template('mail.html')
+        mail_html = '<p>Welcome! Thanks for signing up. Please follow this link to activate your account:</p><br><p>Cheers!</p>'
 
         send_msg(subject, [form.email.data], mail_html)
         

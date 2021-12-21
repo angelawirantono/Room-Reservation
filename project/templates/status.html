@@ -1,14 +1,22 @@
 {% extends 'base.html' %}
 
-
+{% block header %}
+<style>
+    .na {
+        background-color: red;
+        /* cursor: pointer; */
+    }
+</style>
+{% endblock %}
 {% block title %}Status {% endblock %}
 
-{% block content %} 
-<div>Date <input type="date" default=""id="datePicker">
-    <input type="button" onclick="updateTable()" value="Update">
+{% block content %}
+<div>Date <input type="date" default="" id="date_rq">
+    <button href=# id="status"  onclick="updateTable()">Update</button>
 </div>
+
 <div>
-    <table id="schedule" >
+    <table id="schedule">
         <tr>
             <td></td>
             {% for i in range(1, no_of_rooms + 1) %}
@@ -18,12 +26,11 @@
         {% for i in range(hours[0], hours[1]) %}
         <tr>
             <td>{{ i ~":00 - " ~ (i+1) ~ ":00"}}</td>
-            {% for j in range(1, no_of_rooms + 1) %}
+            {% for r in range(1, no_of_rooms+1) %}
             <td></td>
-            {% endfor %}   
+            {% endfor %}
         </tr>
         {% endfor %}
-        {{records}}
     </table>
 </div>
 
@@ -31,21 +38,60 @@
 
 {% block script %}
 <script type="text/javascript">
-    document.getElementById('datePicker').valueAsDate = new Date();
-    function updateTable(){
-        var date = document.getElementById("selected_date");
-        var data = {{ records | safe }};
-        console.log(typeof(data));
-        console.log((data));
+    document.getElementById('date_rq').valueAsDate = new Date();
 
-        var words = data.split(',');
-        for(var i=0;i<words.length;i++){
-            console.log(words[i]);
+    // $("table tr td").click(function () {
+    //     $(this).css("background", "#000");
+    // });
+
+    var list = {};
+
+    function ajaxCallBack(newVal){
+        list = newVal;
+    }
+
+    $(document).ready(function () {
+        $('button#status').bind('click', function () {
+            $.getJSON('{{url_for('booking.get_status')}}', {
+                date: $('input[id="date_rq"]').val()
+            }, function (data) {
+                // $("#resultDate").text(data);
+                console.log(data);
+                ajaxCallBack(data);
+                updateTable();
+            });
+            return false;
+        });
+    });
+    var n_rows = [{{ hours[0] }}, {{ hours[1] }}];
+    var n_cols = {{no_of_rooms}};
+
+    function updateTable() {
+
+        var len = Object.keys(list).length;
+        var table = document.getElementById('schedule');
+
+        for (var i = n_rows[0]+1; i <= n_rows[1]; i++) {
+            for (var j = 1; j <= n_cols; j++) {
+                table.rows[i-n_rows[0]].cells[j].style.backgroundColor = "white";
+            }
         }
 
-        // for(var i=0;i< data.length;i++){
-        //     console.log(data);
-        // }
+        // Traversing the JSON data
+        for(let i in list){
+            var c = parseInt(i);
+            for(let j in list[i]){
+                var r1 = parseInt(list[i][j][0]) + 1 - n_rows[0];
+                var r2 = parseInt(list[i][j][1]) + 1 - n_rows[0];
+                
+                for(let k = r1; k< r2;k++){
+                    table.rows[k].cells[c].innerHTML = "/NA";
+                    table.rows[k].cells[c].style.backgroundColor ="#F10";  
+                    table.rows[k].cells[c].style.color ="#FFF"; 
+                }
+            }
+        }
     }
+
 </script>
 {% endblock %}

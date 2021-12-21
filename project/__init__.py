@@ -4,8 +4,6 @@ from flask_login import LoginManager
 from config import DevelopmentConfig
 from .models import db, User
 
-OPEN_HOURS = (8,24)
-NO_OF_ROOMS = 5
 
 app = Flask(__name__)
 

@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from config import DevelopmentConfig
 from .models import db, User
 
+
 app = Flask(__name__)
 
 # ensure the instance folder exists

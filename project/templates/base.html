@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style-responsive.css') }}" />
     <link rel=”stylesheet” href=”https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css”rel=”nofollow”
         integrity=”sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm” crossorigin=”anonymous”>
-
+    {% block head %}{% endblock %}
 </head>
 
 <body>
@@ -179,12 +179,12 @@
                         </a>
                     </li>
                     <li class="sub-menu">
-                        <a class="" href="#">
+                        <a class="" href="{{ url_for('booking.status') }}">
                             <i class="fa fa-th-list"></i> Room Status
                         </a>
                     </li>
                     <li class="sub-menu">
-                        <a class="" href="#">
+                        <a class="" href="{{ url_for('auth.profile') }}">
                             <i class="fa fa-user-circle-o"></i> Profile
                         </a>
                     </li>
@@ -226,7 +226,7 @@
             $('#form-submit').click(); // submitting the form
         });
     </script>
-
+    {% block script %}{% endblock %}
 </body>
 
 </html>

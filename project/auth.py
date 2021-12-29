@@ -15,27 +15,33 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 def register():
     form = RegisterForm(request.form)
     if form.validate_on_submit():
-        user = User(
-            form.username.data,
-            form.name.data,
-            form.email.data, 
-            generate_password_hash(form.password.data)
-            )
-
-        subject = 'Registration'
-        mail_html = '<p>Welcome! Thanks for signing up. Please follow this link to activate your account:</p><br><p>Cheers!</p>'
-
-        send_msg(subject, [form.email.data], mail_html)
+        check_user = db.session.query(User).filter(
+            User.username==form.username.data 
+            or User.email==form.email.data).first()
         
-        
-        db.session.add(user)
-        db.session.commit()
-    
-        login_user(user)
-        
-        flash('registered')
-        return redirect(url_for('main.home'))
+        if check_user is None:
+            user = User(
+                form.username.data,
+                form.name.data,
+                form.email.data, 
+                generate_password_hash(form.password.data)
+                )
 
+            subject = 'Registration'
+            mail_html = '<p>Welcome! Thanks for signing up. Please follow this link to activate your account:</p><br><p>Cheers!</p>'
+
+            send_msg(subject, [form.email.data], mail_html)
+                   
+            db.session.add(user)
+            db.session.commit()
+        
+            login_user(user)
+            
+            flash('registered')
+            return redirect(url_for('booking.home'))
+        else:
+            flash('Username and/or email is taken')
+            
     return render_template('auth/register.html', form=form)
 
 @auth_bp.route('/login', methods=('GET', 'POST'))
@@ -46,7 +52,7 @@ def login():
 
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
-            return redirect(url_for('main.home'))
+            return redirect(url_for('booking.home'))
         else:
             flash('Failed to login')      
     return render_template('auth/login.html', form=form)
@@ -56,8 +62,3 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
-
-@auth_bp.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html')

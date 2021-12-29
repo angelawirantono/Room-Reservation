@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}{% endblock %}Room-Reservation</title>
+    <title>{% block title %}{% endblock %} Room-Reservation</title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
@@ -34,7 +34,7 @@
 
             <!--logo start-->
             <!-- a href="media.php?module=media" class="logo" style="color:white"><span class="photo"><img src="img/logocon.png" style="margin-top:-10px"></span>Concertino </a -->
-            <a href="{{ url_for('main.home') }}" class="logo" style="color:white">Room Reservation</a>
+            <a href="{{ url_for('booking.home') }}" class="logo" style="color:white">Room Reservation</a>
             <!--logo end-->
 
             <div class="nav main-row" id="top_menu">
@@ -53,7 +53,7 @@
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                             <span style='font-size:15px; color: white'>
                                 {% if current_user.is_authenticated %}
-                                Profile
+                                <i class="fa fa-user-circle-o"></i> 
                                 {% else %}
                                 Log In / Register
                                 {% endif %} <i
@@ -164,7 +164,7 @@
                 <!-- sidebar menu start-->
                 <ul class="sidebar-menu">
                     <li class="active">
-                        <a class="" href="{{ url_for('main.home') }}">
+                        <a class="" href="{{ url_for('booking.home') }}">
                             <i class="fa fa-home"></i> Home
                         </a>
                     </li>
@@ -184,7 +184,7 @@
                         </a>
                     </li>
                     <li class="sub-menu">
-                        <a class="" href="{{ url_for('auth.profile') }}">
+                        <a class="" href="{{ url_for('booking.profile') }}">
                             <i class="fa fa-user-circle-o"></i> Profile
                         </a>
                     </li>

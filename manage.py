@@ -25,7 +25,21 @@ def init_db_command():
 @with_appcontext
 def create_admin_command():
     """Creates admin account"""
-    db.session.add(User('admin','System Admin', 'admin@admin.com', generate_password_hash('admin'), admin=True))
+
+    admin_data = {}
+    read_data= []
+    with open('acc.cfg') as f:
+        read_data = f.read().replace('\n', ';')
+        read_data = read_data.split(';')
+
+    for d in read_data:
+        if 'USERNAME' in d:
+            admin_data['USERNAME'] = d[d.find('=')+1:-1].strip(" \'")
+        elif 'PASSWORD' in d:
+            admin_data['PASSWORD'] = d[d.find('=')+1:-1].strip(" \'")
+
+    # note: USERNAME is actually EMAIL
+    db.session.add(User('admin','Admin', admin_data['USERNAME'], generate_password_hash(admin_data['PASSWORD']), admin=True))
     db.session.commit()
     click.echo('Created admin account.')
 

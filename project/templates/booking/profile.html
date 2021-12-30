@@ -1,0 +1,67 @@
+{% extends 'base.html'%}
+{% block title %}Profile{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/popup.css') }}">
+{% endblock %}
+
+{% block header %}<h2>{{ current_user.name }}'s Profile</h2>{% endblock %}
+
+{% block content %}
+<div>
+    <h3>History</h3>
+    <table>
+        <thead>
+            <tr>
+                <td>ID</td>
+                <td>Room</td>
+                <td>Date</td>
+                <td>Time</td>
+                <td>Party</td>
+                <td>Booked by</td>
+                <td>Booking Time</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records['own'] %}
+            <tr>
+                <td> ID{{ record['id'] }}</td>
+                <td>{{ record['room_id'] }} </td>
+                <td>{{ record['booked_date'] }}</td>
+                <td>{{ record['time_start'] }} - {{ record['time_end'] }}</td>
+                <td>{{ record['party'] }}</td>
+                <td>{{ record['username'] }} </td>
+                <td>{{ record['booking_time'].strftime('%Y-%m-%d (%H:%M)') }}</td>
+            </tr>
+            {% endfor %}
+            {% for record in records['partied'] %}
+            <tr>
+                <td> ID{{ record['id'] }}</td>
+                <td>{{ record['room_id'] }} </td>
+                <td>{{ record['booked_date'] }}</td>
+                <td>{{ record['time_start'] }} - {{ record['time_end'] }}</td>
+                <td>{{ record['party'] }}</td>
+                <td>{{ record['username'] }} </td>
+                <td>{{ record['booking_time'].strftime('%Y-%m-%d (%H:%M)') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div>
+    <h3>Options</h3>
+    <button class="action popup btn-danger" onclick="confirmDelete()" onblur="confirmDelete()">
+        Click here to delete account</buttton>
+        <span class="popuptext" id="popup">
+            <a class="action" style="color: white;" href="{{ url_for('auth.delete', user_id=current_user.id) }}">
+                Are you sure?</a>
+        </span>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    function confirmDelete() {
+        document.getElementById('popup').classList.toggle("show");
+    }
+</script>
+{% endblock %}

@@ -27,4 +27,4 @@ class ReservationForm(FlaskForm):
     time_start = SelectField(u'start_time', choices=start_hour_choices, validators=[DataRequired()])
     time_end = SelectField(u'end_time', choices=end_hour_choices, validators=[DataRequired()])
     party = SelectMultipleField(u'party', widget=ListWidget(prefix_label=True), option_widget=CheckboxInput())
-    
+    message = StringField(u'message')

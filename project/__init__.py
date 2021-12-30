@@ -29,15 +29,12 @@ login_manager.init_app(app)
 import manage
 manage.init_app(app)
 
-from . import main
-app.register_blueprint(main.main_bp)
-app.add_url_rule('/', endpoint='index')
-
 from . import auth
 app.register_blueprint(auth.auth_bp)
 
 from . import booking
 app.register_blueprint(booking.booking_bp)
+# app.add_url_rule('/', endpoint='home')
 
 from . import mail
 mail.mail.init_app(app)

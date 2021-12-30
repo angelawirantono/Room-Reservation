@@ -19,8 +19,8 @@ class ProductionConfig(Config):
 class DevelopmentConfig(Config):
     basedir = os.path.join(os.path.abspath(os.path.abspath(os.path.dirname(__file__))), 'instance')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'project.db')
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_ECHO=True
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # SQLALCHEMY_ECHO=True
     SECRET_KEY = 'dev'
     
 

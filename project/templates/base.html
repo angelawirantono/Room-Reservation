@@ -53,7 +53,7 @@
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                             <span style='font-size:15px; color: white'>
                                 {% if current_user.is_authenticated %}
-                                <i class="fa fa-user-circle-o"></i> 
+                                <i class="fa fa-user-circle-o"></i> {{ current_user.name }}
                                 {% else %}
                                 Log In / Register
                                 {% endif %} <i
@@ -164,27 +164,27 @@
                 <!-- sidebar menu start-->
                 <ul class="sidebar-menu">
                     <li class="active">
-                        <a class="" href="{{ url_for('booking.home') }}">
+                        <a title="Home page" href="{{ url_for('booking.home') }}">
                             <i class="fa fa-home"></i> Home
                         </a>
                     </li>
                     <li class="sub-menu">
-                        <a href="{{ url_for('booking.book') }}" class="">
+                        <a title="Make a reservation" href="{{ url_for('booking.book') }}">
                             <i class="fa fa-file-text-o"></i> Reservation
                         </a>
                     </li>
                     <li class="sub-menu">
-                        <a class="" href="{{ url_for('booking.index') }}">
+                        <a title="Edit a reservation" href="{{ url_for('booking.index') }}">
                             <i class="fa fa-pencil-square-o"></i> Edit
                         </a>
                     </li>
                     <li class="sub-menu">
-                        <a class="" href="{{ url_for('booking.status') }}">
+                        <a title="Check all rooms' status" href="{{ url_for('booking.status') }}">
                             <i class="fa fa-th-list"></i> Room Status
                         </a>
                     </li>
                     <li class="sub-menu">
-                        <a class="" href="{{ url_for('booking.profile') }}">
+                        <a title="Check your history" href="{{ url_for('booking.profile') }}">
                             <i class="fa fa-user-circle-o"></i> Profile
                         </a>
                     </li>

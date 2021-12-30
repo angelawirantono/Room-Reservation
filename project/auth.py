@@ -62,3 +62,10 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+@auth_bp.route('/delete')
+@login_required
+def delete(user_id):
+    db.session.query(User).filter(user_id).delete()
+    db.session.commit()
+    return redirect(url_for('booking.home'))

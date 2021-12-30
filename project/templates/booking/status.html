@@ -11,7 +11,9 @@
 {% block title %}Status {% endblock %}
 
 {% block content %}
-<div>Date <input type="date" default="" id="date_rq">
+<div class="form-group">
+    <label>Date</label>
+    <input type="date" default="" id="date_rq">
     <button href=# id="status"  onclick="updateTable()">Update</button>
 </div>
 
@@ -44,6 +46,7 @@
     //     $(this).css("background", "#000");
     // });
 
+
     var list = {};
 
     function ajaxCallBack(newVal){
@@ -63,6 +66,7 @@
             return false;
         });
     });
+
     var n_rows = [{{ hours[0] }}, {{ hours[1] }}];
     var n_cols = {{no_of_rooms}};
 
@@ -92,6 +96,8 @@
             }
         }
     }
+
+
 
 </script>
 {% endblock %}

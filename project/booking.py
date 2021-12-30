@@ -32,11 +32,14 @@ def profile():
 
     return render_template('booking/profile.html', records=records)
 
-@booking_bp.route('/records')
+@booking_bp.route('/index')
 def index():
     update_records()
-    reservations = Reservation.query.all()
-    return render_template('booking/edit.html', records=reservations)
+    if current_user.is_authenticated and current_user.admin:
+        reservations = db.session.query(Reservation).all()
+    else:
+        reservations = db.session.query(Reservation).filter(Reservation.finished==False).all()
+    return render_template('booking/index.html', records=reservations)
 
 @booking_bp.route('/book', methods=('GET', 'POST'))
 @login_required
@@ -83,7 +86,7 @@ def book():
                         'time_end':form.time_end.data,
                         'party':party_list_form,
                         'booking_time': datetime.now().strftime('%H:%M:%S'),
-                        'invitee': (current_user.name, current_user.username)
+                        'host': (current_user.name, current_user.username)
                         }
 
             if party_list_form:
@@ -108,7 +111,7 @@ def book():
 @login_required
 def edit(id):
     prev_record = db.session.query(Reservation).filter(Reservation.id==id).first()
-    
+    print(prev_record, "EDIT ID")
     form = ReservationForm()
     party_list = [p for p in get_party() if (p[0] != current_user.username)]
     form.party.choices = [(p[0], p[1]) for p in party_list]
@@ -136,13 +139,29 @@ def edit(id):
                     time_end=time_end))
             db.session.commit()
 
+            # Notify party about changes made to this reservation
+            party_list_form.remove((current_user.username, current_user.name))
+            emails = get_party_email(party_list_form)
+
+            meeting_info = {
+                        'date':form.booked_date.data,
+                        'time_start':form.time_start.data,
+                        'time_end':form.time_end.data,
+                        'party':party_list_form,
+                        'booking_time': datetime.now().strftime('%H:%M:%S'),
+                        'invitee': (current_user.name, current_user.username)
+                        }
+
+            if party_list_form:
+                party_msg_html = render_template('mail/invite.html', info=meeting_info, notes=form.message.data)
+                send_msg('Meeting Invitation', emails, party_msg_html)
+            user_msg_html = render_template('mail/success.html', info=meeting_info)
+            send_msg('Reservation Booked', [current_user.email], user_msg_html)
 
             return redirect(url_for('booking.index'))
         else:
             flash(f'Room {form.room_id.data} is unavailable on {form.booked_date.data} at {form.time_start.data} - {form.time_end.data}')
-
             
-        return redirect(url_for('booking.index'))
     else:
         # Pre-populate form with record's current data
         # print('PREVIOUS', prev_record.party)
@@ -158,9 +177,13 @@ def edit(id):
     # return render_template('booking/edit.html', reservation=reservation)
     return render_template('booking/edit.html', record=prev_record, form=form, party=party_list, no_of_rooms=NO_OF_ROOMS, hours=OPEN_HOURS)
 
-@booking_bp.route('/<int:id>/cancel', methods=('POST','GET'))
+@booking_bp.route('/<int:id>/cancel', methods= ('POST','GET'))
 @login_required
 def cancel(id):
+    party_list = db.session.query(Reservation.party).filter(Reservation.id==id).first()
+
+
+
     db.session.query(Reservation).filter(Reservation.id==id).delete()
     db.session.commit()
 

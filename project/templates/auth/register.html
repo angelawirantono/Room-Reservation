@@ -7,18 +7,18 @@
 {% block content %}
   <form method="post">
     {{ form.csrf_token }}
-    <label for="name">Name</label>
+    <label for="name" class="control-label col-lg-2">Name</label>
     {{ form.name(placeholder="name") }}
-    
-    <label for="username">Username</label>
+    <br>
+    <label for="username" class="control-label col-lg-2">Username</label>
     {{ form.username(placeholder="username") }}
-
-    <label for="email">Email</label>
+    <br>
+    <label for="email" class="control-label col-lg-2">Email</label>
     {{ form.email(placeholder="email") }}
-
-    <label for="password">Password</label>
+    <br>
+    <label for="password" class="control-label col-lg-2">Password</label>
     {{ form.password(placeholder="password") }}
-
-    <input type="submit" value="Register">
+    <br>
+    <input type="submit" class="btn btn-success" value="Register">
   </form>
 {% endblock %}

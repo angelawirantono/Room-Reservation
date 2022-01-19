@@ -1,7 +1,7 @@
 import os
 from flask import Flask, Blueprint
 from flask_login import LoginManager
-from config import DevelopmentConfig
+from config import Config
 from .models import db, User
 
 
@@ -18,7 +18,7 @@ except OSError:
 
 # app.config['SECRET_KEY'] = 'dev'
 
-app.config.from_object(DevelopmentConfig)
+app.config.from_object(Config)
 app.config.from_pyfile('../acc.cfg')
 
 db.init_app(app)

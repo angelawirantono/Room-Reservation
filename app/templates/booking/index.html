@@ -42,14 +42,14 @@
                 <td>{{ record['time_start'] }} - {{ record['time_end'] }}</td>
                 <td>{{ record['party'] }}</td>
                 {% if current_user and current_user.admin %}
-                <td>{{ record['finished'] }}</td>
+                <td>{{ record['status'] }}</td>
                 {% endif %}
                 {% if current_user.username == record['username'] or current_user.admin %}
                 <td><button class="action btn-warning"
                         onclick="location.href='{{ url_for('booking.edit', id=record['id']) }}'">Edit</button>
                 </td>
                 <td><button class="action popup btn-danger" onclick="confirmCancel({{record['id']}})"
-                        onblur="confirmCancel({{record['id']}})">Cancel</buttton>
+                        >Cancel</buttton>
                         <span class="popuptext" id="popup{{record['id']}}">
                             <a class="action" style="color: white;" href="{{ url_for('booking.cancel', id=record['id'])
                             }}">Confirm Cancellation?</a>

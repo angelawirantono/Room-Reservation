@@ -24,26 +24,25 @@ class User(db.Model):
     def is_authenticated(self):
         return True
 
+    # needed for flask login
     def is_active(self):
         return True
-
-    def is_anonymous(self):
-        return False
     
+    # needed for flask login
     def get_id(self):
         return self.id
         
 
 class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username  = db.Column(db.Integer, nullable=False)
+    username  = db.Column(db.String, nullable=False)
     room_id = db.Column(db.Integer, nullable=False)
     booking_time = db.Column(db.DateTime, nullable=False)
     booked_date = db.Column(db.Date, nullable=False)
     time_start = db.Column(db.Time, nullable=False)
     time_end = db.Column(db.Time, nullable=False)
     _party = db.Column(db.String)
-    finished = db.Column(db.Boolean, nullable=False)
+    status = db.Column(db.Integer, nullable=False)
 
     def __init__(self, username, room_id, booking_time, booked_date, time_start, time_end, party_list):
         self.username  = username 
@@ -53,7 +52,7 @@ class Reservation(db.Model):
         self.time_start = time_start
         self.time_end = time_end
         self._party = ';'.join(f'{name}'.replace("'", "").strip("() ") for name in party_list)
-        self.finished = False
+        self.status = 0     # 0: coming soon; 1: ongoing; 2: expired
 
     @property
     def party(self):

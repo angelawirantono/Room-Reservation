@@ -33,12 +33,13 @@ def profile():
     return render_template('booking/profile.html', records=records)
 
 @booking_bp.route('/index')
+@login_required
 def index():
     update_records()
     if current_user.is_authenticated and current_user.admin:
         reservations = db.session.query(Reservation).all()
     else:
-        reservations = db.session.query(Reservation).filter(Reservation.finished==False).all()
+        reservations = db.session.query(Reservation).filter(Reservation.status==0).all()
     return render_template('booking/index.html', records=reservations)
 
 @booking_bp.route('/book', methods=('GET', 'POST'))
@@ -95,7 +96,6 @@ def book():
             user_msg_html = render_template('mail/success.html', info=meeting_info)
             send_msg('Reservation Booked', [current_user.email], user_msg_html)
             
-
             return redirect(url_for('booking.index'))
     
         flash(error)
@@ -180,7 +180,7 @@ def edit(id):
 @booking_bp.route('/<int:id>/cancel', methods= ('POST','GET'))
 @login_required
 def cancel(id):
-    party_list = db.session.query(Reservation.party).filter(Reservation.id==id).first()
+    # party_list = db.session.query(Reservation.party).filter(Reservation.id==id).first()
 
 
 
@@ -273,26 +273,44 @@ def check_time_passed(date1, te):
     d2 = datetime.today().strftime('%Y-%m-%d').split('-')
     d1 = [int(i)for i in d1]
     d2 = [int(i)for i in d2]
+    print(d1, d2)
+    # fix date checking, mabok oi kalo 2022 < 2021, jan < dec
 
-    check = [i < j for i, j in zip(d1, d2)]
-    
-    if True not in check:
+    check = [i <= j for i, j in zip(d1, d2)]
+    print(check)
+    for c in check:
+        if c is False:
+            return False
+
+    if d1[2] == d2[2]:        
         hour_now = int(datetime.now().strftime('%H'))
         time_end = int(te.strftime('%H'))
+        print(time_end, hour_now)
         if(time_end > hour_now):
             return False
+
     return True
 
+    
+
 def update_records():
-    past_records = db.session.query(Reservation.id, Reservation.booked_date, Reservation.time_end).filter(
-        Reservation.finished == False).all()
+    past_records = db.session.query(Reservation.id, Reservation.booked_date, Reservation.time_end).all()
 
     if past_records:
+        print('====RECORDs====')
         for r in past_records:
-            # print(f'ID{r.id} Date: {r.booked_date}\t{r.time_end}', end='')
+            print(f'ID{r.id} Date: {r.booked_date}\t{r.time_end}', end='')
             if check_time_passed(r.booked_date, r.time_end):
-                # print('\tPassed')
+                print('\tPassed')
                 db.session.query(Reservation).filter(Reservation.id==r.id).update(
                     dict(
-                        finished=True))
-                db.session.commit()
+                        status=1))
+            # else:
+            #     print('\tnot Passed')
+
+            #     db.session.query(Reservation).filter(Reservation.id==r.id).update(
+            #         dict(
+            #             status=0))
+            db.session.commit()
+        print('====RECORDs====')
+        

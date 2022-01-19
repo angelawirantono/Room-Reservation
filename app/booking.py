@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
+    Blueprint, flash, redirect, render_template, request, url_for, jsonify
 )
 from werkzeug.exceptions import abort
 from datetime import datetime, time, timedelta
@@ -93,12 +93,12 @@ def book():
             if party_list_form:
                 party_msg_html = render_template('mail/invite.html', info=meeting_info, notes=form.message.data)
                 send_msg('Meeting Invitation', emails, party_msg_html)
-            user_msg_html = render_template('mail/success.html', info=meeting_info)
+            user_msg_html = render_template('mail/success.html', info=meeting_info, notes=form.message.data)
             send_msg('Reservation Booked', [current_user.email], user_msg_html)
             
             return redirect(url_for('booking.index'))
     
-        flash(error)
+        flash(error, 'error')
     else:
         # Pre-populate form with current datetime
         form.time_start.default = datetime.now().strftime("%H")
@@ -113,6 +113,7 @@ def edit(id):
     prev_record = db.session.query(Reservation).filter(Reservation.id==id).first()
     print(prev_record, "EDIT ID")
     form = ReservationForm()
+
     party_list = [p for p in get_party() if (p[0] != current_user.username)]
     form.party.choices = [(p[0], p[1]) for p in party_list]
 
@@ -160,32 +161,47 @@ def edit(id):
 
             return redirect(url_for('booking.index'))
         else:
-            flash(f'Room {form.room_id.data} is unavailable on {form.booked_date.data} at {form.time_start.data} - {form.time_end.data}')
+            flash(f'Room {form.room_id.data} is unavailable on {form.booked_date.data} at {form.time_start.data} - {form.time_end.data}', 'error')
             
     else:
         # Pre-populate form with record's current data
         # print('PREVIOUS', prev_record.party)
+
+        ts = prev_record.time_start.strftime('%H')
+        te = prev_record.time_end.strftime('%H')
+        
         form.room_id.default = prev_record.room_id
         form.booked_date.default = prev_record.booked_date
-        form.time_start.default = prev_record.time_start
-        form.time_end.default = prev_record.time_end
         form.process()
 
         form.party.data = [p.split(',')[0] for p in prev_record.party]
         # print('\n\n\n', form.party.choices, form.party.data, form.party.name)
 
-    # return render_template('booking/edit.html', reservation=reservation)
-    return render_template('booking/edit.html', record=prev_record, form=form, party=party_list, no_of_rooms=NO_OF_ROOMS, hours=OPEN_HOURS)
+    return render_template('booking/edit.html', record=prev_record, form=form, party=party_list, no_of_rooms=NO_OF_ROOMS, hours=OPEN_HOURS, te=te, ts=ts)
 
 @booking_bp.route('/<int:id>/cancel', methods= ('POST','GET'))
 @login_required
 def cancel(id):
-    # party_list = db.session.query(Reservation.party).filter(Reservation.id==id).first()
+    r = db.session.query(Reservation).filter(Reservation.id==id).first()
+
+    party_email = get_party_email(r.party)
+    party_email.append(current_user.email)
+
+    meeting_info = {
+        'date':r.booked_date,
+        'time_start':r.time_start,
+        'time_end':r.time_end,
+        'party':r.party,
+        'cancel_time': datetime.now().strftime('%H:%M:%S'),
+        'host': (current_user.name, current_user.username)
+        }
+
+    cancel_html = render_template('mail/cancel.html', info=meeting_info)
+    send_msg('Meeting Canceled', party_email, cancel_html)
 
 
-
-    db.session.query(Reservation).filter(Reservation.id==id).delete()
-    db.session.commit()
+    # db.session.query(Reservation).filter(Reservation.id==id).delete()
+    # db.session.commit()
 
     return redirect(url_for('booking.index'))
 
@@ -203,7 +219,7 @@ def status():
 
 # Functions to get data from DB
 def get_party():
-    party = db.session.query(User.username, User.name).all()
+    party = db.session.query(User.username, User.name).filter(User.username!='admin').all()
     return party
 
 def check_availability(room_id, booked_date, time_start,time_end, edit_id=None):
@@ -243,7 +259,6 @@ def get_party_email(party_list):
     
 def get_reservations():
     reservations = {}
-
     for r in db.session.query(Reservation).all():
         date = r.booked_date.strftime('%y-%m-%d')
         reservations.setdefault(date, []).append(
@@ -268,43 +283,46 @@ def get_booked(date):
         )
     return booked
 
-def check_time_passed(date1, te):
+def check_time_passed(date1, ts, te):
     d1 = str(date1).split('-')
     d2 = datetime.today().strftime('%Y-%m-%d').split('-')
     d1 = [int(i)for i in d1]
     d2 = [int(i)for i in d2]
-    print(d1, d2)
     # fix date checking, mabok oi kalo 2022 < 2021, jan < dec
 
     check = [i <= j for i, j in zip(d1, d2)]
-    print(check)
     for c in check:
         if c is False:
-            return False
+            return 0
 
+     # 0: coming soon; 1: ongoing; 2: expired
     if d1[2] == d2[2]:        
         hour_now = int(datetime.now().strftime('%H'))
         time_end = int(te.strftime('%H'))
-        print(time_end, hour_now)
+        time_start = int(ts.strftime('%H'))
+        
         if(time_end > hour_now):
-            return False
+            if(hour_now > time_start):
+                return 1
+            return 0
 
-    return True
+    return 2
 
     
 
 def update_records():
-    past_records = db.session.query(Reservation.id, Reservation.booked_date, Reservation.time_end).all()
+    past_records = db.session.query(Reservation.id, Reservation.booked_date, Reservation.time_start, Reservation.time_end).all()
 
     if past_records:
-        print('====RECORDs====')
+        # print('====RECORDs====')
         for r in past_records:
-            print(f'ID{r.id} Date: {r.booked_date}\t{r.time_end}', end='')
-            if check_time_passed(r.booked_date, r.time_end):
-                print('\tPassed')
-                db.session.query(Reservation).filter(Reservation.id==r.id).update(
+            curr_stat = check_time_passed(r.booked_date, r.time_start, r.time_end)
+
+            # print(f'ID{r.id} Date: {r.booked_date}\t{r.time_end} stat:{curr_stat}' , end=' ')
+                # print('\tPassed')
+            db.session.query(Reservation).filter(Reservation.id==r.id).update(
                     dict(
-                        status=1))
+                        status=curr_stat))
             # else:
             #     print('\tnot Passed')
 
@@ -312,5 +330,5 @@ def update_records():
             #         dict(
             #             status=0))
             db.session.commit()
-        print('====RECORDs====')
+        # print('====RECORDs====')
         

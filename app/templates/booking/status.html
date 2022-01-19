@@ -53,7 +53,7 @@
         list = newVal;
     }
 
-    $(document).ready(function () {
+    function fetchData(){
         $('button#status').bind('click', function () {
             $.getJSON('{{url_for('booking.get_status')}}', {
                 date: $('input[id="date_rq"]').val()
@@ -65,7 +65,13 @@
             });
             return false;
         });
-    });
+    }
+
+    window.onload = fetchData()
+
+    $(document).ready(fetchData);
+
+    window.onload = ajaxCallBack()
 
     var n_rows = [{{ hours[0] }}, {{ hours[1] }}];
     var n_cols = {{no_of_rooms}};

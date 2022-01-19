@@ -10,6 +10,7 @@
 {% block content %}
 <div>
     <h3>History</h3>
+    {% if records|length %}
     <table>
         <thead>
             <tr>
@@ -20,9 +21,11 @@
                 <td>Party</td>
                 <td>Booked by</td>
                 <td>Booking Time</td>
+                <td>Status</td>
             </tr>
         </thead>
         <tbody>
+            {% set status_str = ['Upcoming', 'Ongoing', 'Expired']%}
             {% for record in records['own'] %}
             <tr>
                 <td> ID{{ record['id'] }}</td>
@@ -32,10 +35,10 @@
                 <td>{{ record['party'] }}</td>
                 <td>{{ record['username'] }} </td>
                 <td>{{ record['booking_time'].strftime('%Y-%m-%d (%H:%M)') }}</td>
+                <td>{{ status_str[record['status']] }}</td>
             </tr>
             {% endfor %}
             {% for record in records['partied'] %}
-            <tr>
                 <td> ID{{ record['id'] }}</td>
                 <td>{{ record['room_id'] }} </td>
                 <td>{{ record['booked_date'] }}</td>
@@ -43,17 +46,21 @@
                 <td>{{ record['party'] }}</td>
                 <td>{{ record['username'] }} </td>
                 <td>{{ record['booking_time'].strftime('%Y-%m-%d (%H:%M)') }}</td>
+                <td>{{ status_str[record['status']] }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+    <p>No records available<br><a href="{{url_for('booking.book')}}">Make a reservation</a></p>
+    {% endif %}
 </div>
 <div>
     <h3>Options</h3>
-    <button class="action popup btn-danger" onclick="confirmDelete()" onblur="confirmDelete()">
+    <button class="action popup btn-danger" onclick="confirmDelete()">
         Click here to delete account</buttton>
         <span class="popuptext" id="popup">
-            <a class="action" style="color: white;" href="{{ url_for('auth.delete', user_id=current_user.id) }}">
+            <a class="action" style="color: white;" href="{{ url_for('auth.delete', id=current_user.id) }}">
                 Are you sure?</a>
         </span>
 </div>

@@ -1,3 +1,10 @@
 <p>You've made a reservation for a meeting on {{ info['date'] }} at {{ info['time_start'] }} - {{ info['time_end'] }}
-</p><br>
+</p>
 <p>Reservation made on {{ info['booking_time'] }}</p>
+<p>Invitation notes:
+{% if notes %}
+{{ notes }}
+{% else %}
+None
+{% endif %}
+</p>

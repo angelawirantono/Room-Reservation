@@ -33,7 +33,6 @@
         </thead>
         <tbody>
             {% for record in records %}
-
             <tr>
                 <td> ID{{ record['id'] }}</td>
                 <td>{{ record['room_id'] }} </td>
@@ -56,7 +55,7 @@
                         </span>
                 </td>
                 {% else %}
-                <td colspan="2" class="col-lg-2">/NA</td>
+                <td colspan="2" class="col-lg-2" style="color: red;">/NA</td>
                 {% endif %}
                 
             </tr>

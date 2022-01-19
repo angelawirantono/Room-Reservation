@@ -20,5 +20,7 @@
     {{ form.password(placeholder="password") }}
     <br>
     <input type="submit" class="btn btn-success" value="Register">
+    <a href="{{ url_for('auth.login') }}">  Already have an account? Login</a>
+
   </form>
 {% endblock %}

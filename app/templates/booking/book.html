@@ -14,6 +14,20 @@
 
             <div class="panel-body">
                 <div class="form-group">
+                    <label class="control-label col-lg-2" for="inputSuccess">Subject</label>
+                    <div class="col-lg-10 radio">
+                        {{ form.subject() }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-lg-2">Message/Details</label>
+                    <div class="col-lg-10" >
+                        {{ form.message(placeholder="", class="form-control") }}
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label class="control-label col-lg-2" for="inputSuccess">Room</label>
                     <div class="col-lg-10 radio">
                         {{ form.room_id() }}
@@ -22,6 +36,7 @@
 
                 <div class="form-group" onfocus="showList()" onblur="hideList()">
                     <label class="control-label col-lg-2" for="inputSuccess">Participants</label>
+                    {% if party|length > 0 %}
                     <div class="col-lg-10" width=50 onblur="hideList()" tabindex="0">
                         <div style="display: flex;">
                             <div><input type="text" id="myInput" onfocus="searchName();showList();"
@@ -40,14 +55,13 @@
                             {{ form.party(onclick="checkParticipant()") }}
                         </div>
                     </div>
+                    {% else %}
+                    <div  style="float:none;padding:0px 15px;color:red;"> Unavailable</div>
+                    {% endif %}
                 </div>
 
-                <div class="form-group">
-                    <label class="control-label col-lg-2">Message/Details</label>
-                    <div class="col-lg-10">
-                        {{ form.message(placeholder="") }}
-                    </div>
-                </div>
+
+                
                 <div class="form-group">
                     <label class="control-label col-lg-2">Date</label>
                     <div class="col-lg-10">
@@ -57,10 +71,9 @@
                 <div class="form-group">
                     <label class="control-label col-lg-2">Time</label>
                     <div class="col-lg-10">
-                        {{ form.time_start(placeholder="") }} - {{ form.time_end(placeholder="") }}
+                        {{ form.time_start(placeholder="", id="time-input-start") }} - {{ form.time_end(placeholder="", id="time-input-end") }}
                     </div>
                 </div>
-
             </div>
             <div class="form-group">
                 <div class="col-lg-10">
@@ -77,17 +90,17 @@
 
 {% block script %}
 <script>
-    $(function(){
+    $(function () {
         var dtToday = new Date();
-        
+
         var month = dtToday.getMonth() + 1;
         var day = dtToday.getDate();
         var year = dtToday.getFullYear();
-        if(month < 10)
+        if (month < 10)
             month = '0' + month.toString();
-        if(day < 10)
+        if (day < 10)
             day = '0' + day.toString();
-        
+
         var maxDate = year + '-' + month + '-' + day;
 
         $('#booked_date').attr('min', maxDate);
@@ -158,6 +171,6 @@
     }
 </script>
 
-{% block script_ext %}
+{% block script_extra %}
 {% endblock %}
 {% endblock %}

@@ -1,4 +1,4 @@
-from project.models import db, User
+from app.models import db, User
 import click
 from flask.cli import with_appcontext
 from werkzeug.security import generate_password_hash

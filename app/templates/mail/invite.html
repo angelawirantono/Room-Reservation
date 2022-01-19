@@ -1,2 +1,9 @@
 <p>You're invited to a meeting on {{ info['date'] }} at {{ info['time_start'] }} - {{ info['time_end'] }} by {{ info['host'] }}
-</p><br>
+</p>
+<p>Invitation notes:
+{% if notes %}
+{{ notes }}
+{% else %}
+None
+{% endif %}
+</p>

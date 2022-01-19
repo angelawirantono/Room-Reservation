@@ -1,13 +1,15 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from .models import User
 from .forms import RegisterForm,  LoginForm
 from .models import db
 from .mail import send_msg
+
+from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -28,7 +30,7 @@ def register():
                 )
 
             subject = 'Registration'
-            mail_html = '<p>Welcome! Thanks for signing up. Please follow this link to activate your account:</p><br><p>Cheers!</p>'
+            mail_html = '<p>Welcome! Thanks for signing up. </p>'
 
             send_msg(subject, [form.email.data], mail_html)
                    
@@ -37,10 +39,10 @@ def register():
         
             login_user(user)
             
-            flash('registered')
+            flash('Successfully registered!', 'success')
             return redirect(url_for('booking.home'))
         else:
-            flash('Username and/or email is taken')
+            flash('Username and/or email is taken', 'error')
             
     return render_template('auth/register.html', form=form)
 
@@ -54,7 +56,7 @@ def login():
             login_user(user)
             return redirect(url_for('booking.home'))
         else:
-            flash('Failed to login')      
+            flash('Failed to login', 'error')      
     return render_template('auth/login.html', form=form)
 
 @auth_bp.route('/logout')
@@ -63,9 +65,17 @@ def logout():
     logout_user()
     return redirect(url_for('auth.login'))
 
-@auth_bp.route('/delete')
+@auth_bp.route('/<int:id>/delete')
 @login_required
-def delete(user_id):
-    db.session.query(User).filter(user_id).delete()
+def delete(id):
+
+    deletion_time =  datetime.now().strftime('%H:%M:%S')
+    delete_html = render_template('mail/delete.html', deletion_time=deletion_time)
+    
+    send_msg('Account Deleted', [current_user.email], delete_html)
+
+    curr_user = db.session.query(User).filter(User.id == id).first()
+    db.session.delete(curr_user)
     db.session.commit()
+
     return redirect(url_for('booking.home'))

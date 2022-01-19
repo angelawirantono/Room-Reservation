@@ -56,19 +56,19 @@
                                 <i class="fa fa-user-circle-o"></i> {{ current_user.name }}
                                 {% else %}
                                 Log In / Register
-                                {% endif %} <i
-                                    class="fa fa-caret-down"></i></span>
+                                {% endif %} <i class="fa fa-caret-down"></i></span>
                             <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu extended Log In">
                             <div class="log-arrow-up"></div>
-                            {%  if current_user.is_authenticated %}
+                            {% if current_user.is_authenticated %}
                             <li>
                                 <a href="{{ url_for('auth.logout') }}"><i class="fa fa-sign-out"></i> Log Out</a>
                             </li>
                             {% else %}
                             <li>
-                                <a data-toggle="modal" href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i> Log in</a>
+                                <a data-toggle="modal" href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i> Log
+                                    in</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="modal" href="{{ url_for('auth.register') }}"><i
@@ -201,10 +201,11 @@
                 <header>
                     {% block header %}{% endblock %}
                 </header>
-                {% for message in get_flashed_messages() %}
-                <div class="flash">{{ message }}</div>
-                {% endfor %}
                 {% block content %}{% endblock %}
+
+                {% for category, message in get_flashed_messages(with_categories=true) %}
+                <div class="flash {{category}}">{{ message }}</div>
+                {%endfor%}
             </section>
         </section>
         <!--main content end-->

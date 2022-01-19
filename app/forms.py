@@ -22,6 +22,7 @@ class ReservationForm(FlaskForm):
     end_hour_choices = [(i+1,str(i+1).zfill(2)+':00')for i in range(OPEN_HOURS[0], OPEN_HOURS [1])]
     room_choices = [(i, 'R'+ str(i)) for i in range(1, NO_OF_ROOMS+1)]
 
+    subject = StringField(u'subject', default='Meeting')
     room_id = RadioField(u'room', choices=room_choices, validators=[DataRequired()], widget=ListWidget())
     booked_date = DateField(u'current_date', default=datetime.today, validators=[DataRequired()])
     time_start = SelectField(u'start_time', choices=start_hour_choices, validators=[DataRequired()])

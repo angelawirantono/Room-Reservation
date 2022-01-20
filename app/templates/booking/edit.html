@@ -9,7 +9,7 @@
 {% block script_extra %}
 <script>
     window.onload = checkParticipant();
-
+    console.log({{ts}}, {{te}});
     document.getElementById('time-input-start').value = '{{ ts }}';
     document.getElementById('time-input-end').value = '{{ te }}';
 

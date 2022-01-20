@@ -71,7 +71,8 @@ def book():
                 form.booked_date.data, 
                 time_start, 
                 time_end, 
-                party_list_form
+                party_list_form,
+                form.message.data
                 )
         error = check_room_avail(form.room_id.data, form.booked_date.data, time_start, time_end)
         error = check_party_avail(form.booked_date.data, time_start, time_end, party_list_form)
@@ -121,7 +122,6 @@ def edit(id):
     
     prev_party = [p.split(',')[0] for p in prev_record.party]
     set_prev = set(prev_party)
-    print('PREVIOUS', set_prev)
 
     if request.method == 'POST' and form.is_submitted():
         party_list_form = []
@@ -255,7 +255,7 @@ def status():
 
 # Functions to get data from DB
 def get_party():
-    party = db.session.query(User.username, User.name).filter(User.is_admin()!=True).all()
+    party = db.session.query(User.username, User.name).filter(User.admin!=True).all()
     return party
 
 def check_room_avail(room_id, booked_date, time_start,time_end, edit_id=None):
@@ -336,33 +336,32 @@ def check_time_passed(date1, ts, te):
         hour_now = int(datetime.now().strftime('%H'))
         time_end = int(te.strftime('%H'))
         time_start = int(ts.strftime('%H'))
-        
+        print(hour_now, time_start, time_end)
         if(time_end > hour_now):
-            if(hour_now > time_start):
+            if(hour_now >= time_start):
                 return 1
             return 0
-
     return 2
 
 def update_records():
-    past_records = db.session.query(Reservation.id, Reservation.booked_date, Reservation.time_start, Reservation.time_end).all()
+    print('UPDATE')
+    past_records = db.session.query(Reservation.id, Reservation.booked_date, Reservation.time_start, Reservation.time_end).filter(Reservation.status!=2).all()
 
-    if past_records:
-        # print('====RECORDs====')
-        for r in past_records:
-            curr_stat = check_time_passed(r.booked_date, r.time_start, r.time_end)
+    # print('====RECORDs====')
+    for r in past_records:
+        curr_stat = check_time_passed(r.booked_date, r.time_start, r.time_end)
 
-            # print(f'ID{r.id} Date: {r.booked_date}\t{r.time_end} stat:{curr_stat}' , end=' ')
-                # print('\tPassed')
-            db.session.query(Reservation).filter(Reservation.id==r.id).update(
-                    dict(
-                        status=curr_stat))
-            # else:
-            #     print('\tnot Passed')
+        print(f'ID{r.id} Date: {r.booked_date}\t{r.time_end} stat:{curr_stat}')
+            # print('\tPassed')
+        db.session.query(Reservation).filter(Reservation.id==r.id).update(
+                dict(
+                    status=curr_stat))
+        # else:
+        #     print('\tnot Passed')
 
-            #     db.session.query(Reservation).filter(Reservation.id==r.id).update(
-            #         dict(
-            #             status=0))
-            db.session.commit()
-        # print('====RECORDs====')
-        
+        #     db.session.query(Reservation).filter(Reservation.id==r.id).update(
+        #         dict(
+        #             status=0))
+        db.session.commit()
+    # print('====RECORDs====')
+    

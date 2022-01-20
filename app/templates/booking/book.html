@@ -59,8 +59,6 @@
                     <div  style="float:none;padding:0px 15px;color:red;"> Unavailable</div>
                     {% endif %}
                 </div>
-
-
                 
                 <div class="form-group">
                     <label class="control-label col-lg-2">Date</label>
@@ -121,7 +119,14 @@
         input = document.getElementById('myInput');
         filter = input.value.toUpperCase();
         ul = document.getElementById("party_checklist");
-        li = ul.getElementsByTagName('li');
+        
+        try{
+            li = ul.getElementsByTagName('li');
+        }
+        catch (error){
+            return;
+        }
+            
         // Loop through all list items, and hide those who don't match the search query
         for (i = 0; i < li.length; i++) {
 
@@ -140,10 +145,15 @@
     function checkParticipant() {
         var ul, li, list, ul2, li2, i;
         ul = document.getElementById("party_checklist");
-        li = ul.getElementsByTagName("li");
-
         ul2 = document.getElementById("party_list");
-        li2 = ul2.getElementsByTagName("li");
+
+        try{
+            li = ul.getElementsByTagName("li");
+            li2 = ul2.getElementsByTagName("li");
+        }
+        catch(error){
+            return;
+        }
 
         list = document.getElementById("participant_list_txt");
         for (i = 0; i < li2.length; i++) {

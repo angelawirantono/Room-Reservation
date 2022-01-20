@@ -23,6 +23,9 @@ class User(db.Model):
 
     def is_authenticated(self):
         return True
+    
+    def is_admin(self):
+        return self.admin
 
     # needed for flask login
     def is_active(self):
@@ -31,10 +34,6 @@ class User(db.Model):
     # needed for flask login
     def get_id(self):
         return self.id
-
-    def is_admin(self):
-        return self.admin
-        
 
 class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)

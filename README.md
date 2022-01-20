@@ -11,7 +11,7 @@ There exists several `CLI commands` to directly modify the database.
 > `flask drop-db` Drops existing database.   
 > `flask create-admin` Creates admin account.   
 
-Username: admin
+Username: admin    
 password: admin
   
 ## How to run

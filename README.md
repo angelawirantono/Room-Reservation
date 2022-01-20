@@ -13,8 +13,7 @@ There exists several `CLI commands` to directly modify the database.
   
 ## How to run
 Make sure to do the following while pwd is outside of `project` directory
-1. Type `$env:FLASK_APP = "app"`
-2. Type `$env:FLASK_ENV = "development"`
-3. Type `flask run`
+1. Type `$env:FLASK_ENV = "development"`
+2. Type `flask run`
 
 The website should be accessible in the localhost `http://127.0.0.1:5000/`

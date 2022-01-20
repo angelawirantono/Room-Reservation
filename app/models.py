@@ -31,6 +31,9 @@ class User(db.Model):
     # needed for flask login
     def get_id(self):
         return self.id
+
+    def is_admin(self):
+        return self.admin
         
 
 class Reservation(db.Model):
@@ -43,9 +46,10 @@ class Reservation(db.Model):
     time_start = db.Column(db.Time, nullable=False)
     time_end = db.Column(db.Time, nullable=False)
     _party = db.Column(db.String)
+    message = db.Column(db.String)
     status = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, username, subject, room_id, booking_time, booked_date, time_start, time_end, party_list):
+    def __init__(self, username, subject, room_id, booking_time, booked_date, time_start, time_end, party_list, message):
         self.username  = username 
         self.subject  = subject 
         self.room_id = room_id
@@ -54,6 +58,7 @@ class Reservation(db.Model):
         self.time_start = time_start
         self.time_end = time_end
         self._party = ';'.join(f'{name}'.replace("'", "").strip("() ") for name in party_list)
+        self.message = message
         self.status = 0     # 0: coming soon; 1: ongoing; 2: expired
 
     @property

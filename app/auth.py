@@ -70,7 +70,7 @@ def logout():
 def delete(id):
 
     deletion_time =  datetime.now().strftime('%H:%M:%S')
-    delete_html = render_template('mail/delete.html', deletion_time=deletion_time)
+    delete_html = render_template('mail/auth/delete.html', deletion_time=deletion_time)
     
     send_msg('Account Deleted', [current_user.email], delete_html)
 

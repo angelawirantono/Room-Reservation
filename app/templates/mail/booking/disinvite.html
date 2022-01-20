@@ -1,0 +1,11 @@
+<p>You have been disinvited from the Meeting:<em>{{ info['subject' ]}}</em> on {{ info['date'] }} at {{
+    info['time_start'] }} - {{ info['time_end'] }}
+    by {{ info['host'] }}
+    <br>
+    Invitation notes:
+    {% if notes %}
+    {{ notes }}
+    {% else %}
+    None
+    {% endif %}
+</p>

@@ -20,7 +20,7 @@
 <div>
     <table id="schedule">
         <tr>
-            <td></td>
+            <td>Time</td>
             {% for i in range(1, no_of_rooms + 1) %}
             <td>{{ "Room " ~i}}</td>
             {% endfor %}
@@ -40,6 +40,15 @@
 
 {% block script %}
 <script type="text/javascript">
+    
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+
+    today = mm + '/' + dd + '/' + yyyy;
+
+    console.log(today);
     document.getElementById('date_rq').valueAsDate = new Date();
 
     // $("table tr td").click(function () {
@@ -72,6 +81,7 @@
     $(document).ready(fetchData);
 
     window.onload = ajaxCallBack()
+    $( window ).on( "load", fetchData());
 
     var n_rows = [{{ hours[0] }}, {{ hours[1] }}];
     var n_cols = {{no_of_rooms}};

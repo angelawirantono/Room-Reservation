@@ -69,7 +69,7 @@
                 <div class="form-group">
                     <label class="control-label col-lg-2">Time</label>
                     <div class="col-lg-10">
-                        {{ form.time_start(placeholder="", id="time-input-start") }} - {{ form.time_end(placeholder="", id="time-input-end") }}
+                        {{ form.time_start(placeholder="", id="time-input-start", onchange="incrementTime()") }} - {{ form.time_end(placeholder="", id="time-input-end") }}
                     </div>
                 </div>
             </div>
@@ -179,6 +179,14 @@
         var date = document.getElementById("booked_date");
         console.log(date.value);
     }
+
+    function incrementTime(){
+        var te = document.getElementById("time-input-end"); 
+        te.value = parseInt(document.getElementById("time-input-start").value) + 1;
+        
+
+    }
+
 </script>
 
 {% block script_extra %}

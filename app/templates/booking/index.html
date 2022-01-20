@@ -21,10 +21,10 @@
             <tr>
                 <td>ID</td>
                 <td>Room</td>
-                <td>User</td>
                 <td>Date</td>
                 <td>Time</td>
                 <td>Party</td>
+                <td>Booked by</td>
                 {% if current_user.is_authenticated and current_user.admin %}
                 <td>Status</td>
                 {% endif %}
@@ -36,10 +36,15 @@
             <tr>
                 <td> ID{{ record['id'] }}</td>
                 <td>{{ record['room_id'] }} </td>
-                <td>{{ record['username'] }}</td>
                 <td>{{ record['booked_date'] }}</td>
                 <td>{{ record['time_start'] }} - {{ record['time_end'] }}</td>
-                <td>{{ record['party'] }}</td>
+                <td>
+                    {% for party in record['party'] %}
+                        {% set info = party.split(',') %}
+                        {{ info[1] }}({{ info[0]}})<br>
+                    {% endfor %}
+                </td>
+                <td>{{ record['username'] }}</td>
                 {% if current_user and current_user.admin %}
                 <td>{{ record['status'] }}</td>
                 {% endif %}

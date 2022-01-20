@@ -32,7 +32,12 @@
                 <td>{{ record['room_id'] }} </td>
                 <td>{{ record['booked_date'] }}</td>
                 <td>{{ record['time_start'] }} - {{ record['time_end'] }}</td>
-                <td>{{ record['party'] }}</td>
+                <td>
+                    {% for party in record['party'] %}
+                        {% set info = party.split(',') %}
+                        {{ info[1] }}({{ info[0]}})<br>
+                    {% endfor %}
+                </td>
                 <td>{{ record['username'] }} </td>
                 <td>{{ record['booking_time'].strftime('%Y-%m-%d (%H:%M)') }}</td>
                 <td>{{ status_str[record['status']] }}</td>
@@ -43,7 +48,12 @@
                 <td>{{ record['room_id'] }} </td>
                 <td>{{ record['booked_date'] }}</td>
                 <td>{{ record['time_start'] }} - {{ record['time_end'] }}</td>
-                <td>{{ record['party'] }}</td>
+                <td>
+                    {% for party in record['party'] %}
+                        {% set info = party.split(',') %}
+                        {{ info[1] }}({{ info[0]}})<br>
+                    {% endfor %}
+                </td>
                 <td>{{ record['username'] }} </td>
                 <td>{{ record['booking_time'].strftime('%Y-%m-%d (%H:%M)') }}</td>
                 <td>{{ status_str[record['status']] }}</td>

@@ -21,6 +21,7 @@ def home():
 @login_required
 def profile():
     update_records()
+    send_reminder()
     records = {}
     reservations = db.session.query(Reservation).all()
 
@@ -36,10 +37,13 @@ def profile():
 @login_required
 def index():
     update_records()
+    send_reminder()
+
     if current_user.is_authenticated and current_user.admin:
         reservations = db.session.query(Reservation).all()
     else:
         reservations = db.session.query(Reservation).filter(Reservation.status==0).all()
+
     return render_template('booking/index.html', records=reservations)
 
 @booking_bp.route('/book', methods=('GET', 'POST'))
@@ -147,14 +151,14 @@ def edit(id):
             # party_list_form.remove((current_user.username, current_user.name))
 
             meeting_info = {
-                        'subject': form.subject.data,
-                        'date':form.booked_date.data,
-                        'time_start':form.time_start.data,
-                        'time_end':form.time_end.data,
-                        'party':party_list_form,
+                        'subject':      form.subject.data,
+                        'date':         form.booked_date.data,
+                        'time_start':   form.time_start.data,
+                        'time_end':     form.time_end.data,
+                        'party':        party_list_form,
                         'booking_time': datetime.now().strftime('%H:%M:%S'),
-                        'invitee': (current_user.name, current_user.username),
-                        'notes': form.message.data
+                        'invitee':      (current_user.name, current_user.username),
+                        'notes':        form.message.data
                         }
 
             # check if anyone is disinvited (contains usernames)
@@ -210,7 +214,6 @@ def edit(id):
             flash(error, 'error')
     else:
         # Pre-populate form with record's current data
-        
         form.room_id.default = prev_record.room_id
         form.booked_date.default = prev_record.booked_date
         form.process()
@@ -224,7 +227,7 @@ def edit(id):
 def cancel(id):
     r = db.session.query(Reservation).filter(Reservation.id==id).first()
 
-    party_emails = get_party_email([p[0] for p in r.party])
+    party_emails = get_party_email([p.split(',')[0] for p in r.party])
     party_emails.append(current_user.email)
 
     meeting_info = {
@@ -254,7 +257,7 @@ def get_status():
 @booking_bp.route('/status', methods=('GET','POST'))
 def status():
     update_records()
-    remind()
+    send_reminder()
     return render_template('booking/status.html', hours=OPEN_HOURS, no_of_rooms=NO_OF_ROOMS)
 
 # Functions to get data from DB
@@ -327,8 +330,8 @@ def get_booked(date):
         )
     return booked
 
-def check_time_passed(date1, ts, te):
-    d1 = str(date1).split('-')
+def check_time_passed(date, ts, te):
+    d1 = str(date).split('-')
     d2 = datetime.today().strftime('%Y-%m-%d').split('-')
     d1 = [int(i)for i in d1]
     d2 = [int(i)for i in d2]
@@ -351,23 +354,11 @@ def check_time_passed(date1, ts, te):
             return 0
     return 2
 
-def check_time_diff(date, ts):
+def check_time_diff(date):
     d1 = str(date).split('-')
-    d1 = datetime(int(d1[0]), int(d1[1]), int(d1[2]), int(ts))
+    d1 = datetime(int(d1[0]), int(d1[1]), int(d1[2]))
     d2 = datetime.today()    
-
-    diff = d1-d2
-
-    return d1.month-d2.month, diff.days, round(diff.seconds/3600)
-
-    d1 = [int(i)for i in d1]
-    d2 = [int(i)for i in d2]
-    # fix date checking, mabok oi kalo 2022 < 2021, jan < dec
-
-    check = [i <= j for i, j in zip(d1, d2)]
-    for c in check:
-        if c is False:
-            return 0
+    return (d1-d2).days
 
 def update_records():
     past_records = db.session.query(Reservation.id, Reservation.booked_date, Reservation.time_start, Reservation.time_end).filter(Reservation.status!=2).all()
@@ -381,11 +372,29 @@ def update_records():
                     status=curr_stat))
         db.session.commit()
     
-def remind(r_time=0):
-    reservations = db.session.query(Reservation).filter(Reservation.status==0).all()
+def send_reminder():
+    reservations = db.session.query(Reservation).filter(Reservation.status==0, Reservation.reminder==False).all()
     
     for r in reservations:
         date = r.booked_date
-        ts = r.time_start.strftime('%H')
-        check_time_diff(date, ts)
+        # 1 day before booked date
+        if check_time_diff(date) <= 1:
+            print('reminder sent')
+            meeting_info = {
+                'subject':r.subject,
+                'date':r.booked_date,
+                'time_start':r.time_start,
+                'time_end':r.time_end,
+                'party':r.party,
+                'cancel_time': datetime.now().strftime('%H:%M:%S'),
+                'host': (current_user.name, current_user.username),
+                'notes':r.message
+                }
+            party_emails = get_party_email([p.split(',')[0] for p in r.party])
+            reminder_html = render_template('mail/reminder.html', info=meeting_info)
+            send_msg('Meeting Reminder', party_emails, reminder_html)
+            db.session.query(Reservation).filter(Reservation.id==r.id).update(
+                dict(
+                    reminder=True))
+            db.session.commit()
 

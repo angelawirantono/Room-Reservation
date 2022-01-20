@@ -9,16 +9,12 @@ class User(db.Model):
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     admin = db.Column(db.Boolean, nullable=False, default=False)
-    # registered_on = db.Column(db.DateTime, nullable=False)
-    # confirmed = db.Column(db.Boolean, nullable=False, default=False)
-    # confirmed_on = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, username, name, email, password, admin=False):
         self.username = username
         self.name = name
         self.email = email
         self.password = password
-        # self.registered_on = register_time
         self.admin = admin
 
     def is_authenticated(self):
@@ -46,6 +42,7 @@ class Reservation(db.Model):
     time_end = db.Column(db.Time, nullable=False)
     _party = db.Column(db.String)
     message = db.Column(db.String)
+    reminder = db.Column(db.Boolean, nullable=False)
     status = db.Column(db.Integer, nullable=False)
 
     def __init__(self, username, subject, room_id, booking_time, booked_date, time_start, time_end, party_list, message):
@@ -58,12 +55,13 @@ class Reservation(db.Model):
         self.time_end = time_end
         self._party = ';'.join(f'{name}'.replace("'", "").strip("() ") for name in party_list)
         self.message = message
+        self.reminder = False
         self.status = 0     # 0: coming soon; 1: ongoing; 2: expired
 
     @property
     def party(self):
         return [name for name in self._party.split(';')]
     @party.setter
-    def party(self, value):
-        self._party = ';'.join(f'{name}'.replace("'", "").strip("() ") for name in value)
-    
+    def party(self, names):
+        self._party = ';'.join(f'{n}'.replace("'", "").strip("() ") for n in names)
+

@@ -18,8 +18,8 @@ def register():
     form = RegisterForm(request.form)
     if form.validate_on_submit():
         check_user = db.session.query(User).filter(
-            User.username==form.username.data 
-            or User.email==form.email.data).first()
+            (User.username==form.username.data) | 
+            (User.email==form.email.data)).first()
         
         if check_user is None:
             user = User(
@@ -36,7 +36,8 @@ def register():
                    
             db.session.add(user)
             db.session.commit()
-        
+            
+
             login_user(user)
             
             flash('Successfully registered!', 'success')

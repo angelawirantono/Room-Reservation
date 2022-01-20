@@ -1,5 +1,5 @@
 import os
-from flask import Flask, Blueprint
+from flask import Flask
 from flask_login import LoginManager
 from config import Config
 from .models import db, User
@@ -12,11 +12,6 @@ try:
     os.makedirs(app.instance_path)
 except OSError:
     pass
-
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'project.db')
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-
-# app.config['SECRET_KEY'] = 'dev'
 
 app.config.from_object(Config)
 app.config.from_pyfile('../account.cfg')

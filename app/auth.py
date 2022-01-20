@@ -1,20 +1,22 @@
+""" Handles authentication and account related functionalities """
 from flask import (
-    Blueprint, flash, redirect, render_template, request, session, url_for
+    Blueprint, flash, redirect, render_template, request, url_for
 )
-from werkzeug.security import check_password_hash, generate_password_hash
 
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
+from datetime import datetime
+
 from .models import User
 from .forms import RegisterForm,  LoginForm
 from .models import db
 from .mail import send_msg
 
-from datetime import datetime
-
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/register', methods=('GET', 'POST'))
 def register():
+    """ Registers user to the system """
     form = RegisterForm(request.form)
     if form.validate_on_submit():
         check_user = db.session.query(User).filter(
@@ -29,14 +31,12 @@ def register():
                 generate_password_hash(form.password.data)
                 )
 
-            subject = 'Registration'
             mail_html = '<p>Welcome! Thanks for signing up. </p>'
 
-            send_msg(subject, [form.email.data], mail_html)
+            send_msg('[VRRA] You\ve succesfully been registered!', [form.email.data], mail_html)
                    
             db.session.add(user)
             db.session.commit()
-            
 
             login_user(user)
             
@@ -44,11 +44,11 @@ def register():
             return redirect(url_for('booking.home'))
         else:
             flash('Username and/or email is taken', 'error')
-            
     return render_template('auth/register.html', form=form)
 
 @auth_bp.route('/login', methods=('GET', 'POST'))
 def login():
+    """ Logs in user to the system """
     form = LoginForm(request.form)
     if form.validate_on_submit():
         user = User.query.filter(User.username==form.username.data).first()
@@ -63,17 +63,18 @@ def login():
 @auth_bp.route('/logout')
 @login_required
 def logout():
+    """ Logs out user to the system """
     logout_user()
     return redirect(url_for('auth.login'))
 
 @auth_bp.route('/<int:id>/delete')
 @login_required
 def delete(id):
-
+    """ Deletes user account """
     deletion_time =  datetime.now().strftime('%H:%M:%S')
-    delete_html = render_template('mail/auth/delete.html', deletion_time=deletion_time)
     
-    send_msg('Account Deleted', [current_user.email], delete_html)
+    delete_html = f'<p>You\'re account on the VRRA system has been successfully deleted on {deletion_time}.<br>Thank you for using our service.</p>'
+    send_msg(f'[VRRA] You\'re account has been deleted', [current_user.email], delete_html)
 
     curr_user = db.session.query(User).filter(User.id == id).first()
     db.session.delete(curr_user)

@@ -1,3 +1,4 @@
+""" Database models classes defined here """
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -45,7 +46,7 @@ class Reservation(db.Model):
     reminder = db.Column(db.Boolean, nullable=False)
     status = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, username, subject, room_id, booking_time, booked_date, time_start, time_end, party_list, message):
+    def __init__(self, username, subject, room_id, booking_time, booked_date, time_start, time_end, party_list, message, reminder=False):
         self.username  = username 
         self.subject  = subject 
         self.room_id = room_id
@@ -55,7 +56,7 @@ class Reservation(db.Model):
         self.time_end = time_end
         self._party = ';'.join(f'{name}'.replace("'", "").strip("() ") for name in party_list)
         self.message = message
-        self.reminder = False
+        self.reminder = reminder
         self.status = 0     # 0: coming soon; 1: ongoing; 2: expired
 
     @property

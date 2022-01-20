@@ -69,7 +69,7 @@
                 <div class="form-group">
                     <label class="control-label col-lg-2">Time</label>
                     <div class="col-lg-10">
-                        {{ form.time_start(placeholder="", id="time-input-start", onchange="incrementTime()") }} - {{ form.time_end(placeholder="", id="time-input-end") }}
+                        {{ form.time_start(placeholder="", id="time-input-start", onchange="incrementTime()") }} - {{ form.time_end(placeholder="", id="time-input-end", onchange="decrementTime()") }}
                     </div>
                 </div>
             </div>
@@ -181,10 +181,19 @@
     }
 
     function incrementTime(){
+        var ts = document.getElementById("time-input-start");
         var te = document.getElementById("time-input-end"); 
-        te.value = parseInt(document.getElementById("time-input-start").value) + 1;
+        if (ts.value >= te.value){
+            te.value = parseInt(ts.value) + 1;
+        }
     }
-
+    function decrementTime(){
+        var ts = document.getElementById("time-input-start");
+        var te = document.getElementById("time-input-end"); 
+        if (ts.value >= te.value){
+            ts.value = parseInt(te.value) - 1;
+        }
+    }
 </script>
 
 {% block script_extra %}

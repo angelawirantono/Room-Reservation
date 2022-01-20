@@ -1,5 +1,4 @@
 import os
-from flask import current_app
 
 OPEN_HOURS = (8,24)
 NO_OF_ROOMS = 5
@@ -16,4 +15,4 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'project.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # SQLALCHEMY_ECHO=True
-    SECRET_KEY = 'dev'
+    SECRET_KEY = 'this_is_secret'

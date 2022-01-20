@@ -1,0 +1,20 @@
+<div>
+    <h4>{{ message }}</h4> 
+    <div>
+        <h2>Meeting info:</h2>
+        <h3>Subject: <strong>{{ info['subject'] }}</strong> <br>
+        Date: {{ info['date'] }} <br>
+        Time: {{ info['time_start'] }}:00 - {{ info['time_end'] }}:00 <br>
+    </h3>
+        Invitation notes: <br>
+        {% if info['notes'] %}
+        {{ notes }}
+        {% else %}
+        None
+        {% endif %}
+    </div>
+    <br>
+    <div>
+        <em>Reservation made on {{ info['booking_time'] }} by {{ info['host'] }}</em>
+    </div>
+</div>

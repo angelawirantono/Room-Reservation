@@ -1,3 +1,4 @@
+""" Handles CLI commands """
 from app.models import db, User
 import click
 from flask.cli import with_appcontext

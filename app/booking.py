@@ -1,8 +1,9 @@
+""" Handles reservation booking, editing, canceling and other booking utility functionalities """
 from flask import (
     Blueprint, flash, redirect, render_template, request, url_for, jsonify
 )
 from werkzeug.exceptions import abort
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, date
 
 from flask_login import login_required, current_user
 from .forms import ReservationForm
@@ -12,7 +13,6 @@ from .mail import send_msg
 
 booking_bp = Blueprint('booking', __name__)
 
-# Routes
 @booking_bp.route('/')
 def home():
     return render_template('booking/home.html')
@@ -20,8 +20,10 @@ def home():
 @booking_bp.route('/profile')
 @login_required
 def profile():
+    """ View user profile (reservation history) """
     update_records()
     send_reminder()
+
     records = {}
     reservations = db.session.query(Reservation).all()
 
@@ -36,6 +38,7 @@ def profile():
 @booking_bp.route('/index')
 @login_required
 def index():
+    """ Displays ongoing reservations """
     update_records()
     send_reminder()
 
@@ -50,6 +53,7 @@ def index():
 @login_required
 def book():
     form = ReservationForm()
+
     # get party list to be listed out as choices, exclude current_user
     party_list = [p for p in get_party() if (p[0] != current_user.username)]
     form.party.choices = [(p[0], p[1]) for p in party_list]
@@ -60,8 +64,13 @@ def book():
         for party in form.party.data:
             party_list_form.append(party_list[[p[0] for p in party_list].index(party)])
 
-        # include current_user in meeting
+        # include current_user back in reservation
         party_list_form.append((current_user.username, current_user.name))
+
+        # If reservation happens today, no need reminders
+        need_reminder = True
+        if form.booked_date.data == date.today():
+            need_reminder = False
 
         # parse time object from given hour integer
         time_start = time(int(form.time_start.data),0,0,0)
@@ -76,11 +85,13 @@ def book():
                 time_start, 
                 time_end, 
                 party_list_form,
-                form.message.data
+                form.message.data,
+                need_reminder
                 )
+
         error = check_room_avail(int(form.room_id.data), form.booked_date.data, time_start, time_end)
-        error += '\n' if error else ''
-        error += check_party_avail(form.booked_date.data, time_start, time_end, party_list_form)
+        error = check_party_avail(form.booked_date.data, time_start, time_end, party_list_form)
+
         if error == '':
             db.session.add(reservation)
             db.session.commit()
@@ -88,28 +99,30 @@ def book():
             party_list_form.remove((current_user.username, current_user.name))
             emails = get_party_email(p[0] for p in party_list_form)
 
-            meeting_info = {
-                        'date':form.booked_date.data,
-                        'time_start':form.time_start.data,
-                        'time_end':form.time_end.data,
-                        'party':party_list_form,
-                        'booking_time': datetime.now().strftime('%H:%M:%S'),
-                        'host': (current_user.name, current_user.username)
-                        }
+            info = {
+                'date':form.booked_date.data,
+                'time_start':form.time_start.data,
+                'time_end':form.time_end.data,
+                'party':party_list_form,
+                'booking_time': datetime.now().strftime('%H:%M:%S'),
+                'host': (current_user.name, current_user.username),
+                'message': form.message.data
+                }
 
             if party_list_form:
-                party_msg_html = render_template('mail/booking/invite.html', info=meeting_info, notes=form.message.data)
-                send_msg('Meeting Invitation', emails, party_msg_html)
-            user_msg_html = render_template('mail/booking/success.html', info=meeting_info, notes=form.message.data)
-            send_msg('Reservation Booked', [current_user.email], user_msg_html)
+                party_msg_html = render_template('mail.html', message='You\'ve been invited to a meeting.', info=info)
+                send_msg(f'[VRRA] Meeting Invitation on {info["date"]} at {info["time_start"]}:00 - {info["time_end"]}:00', emails, party_msg_html)
+
+            user_msg_html = render_template('mail.html', message = 'You\'ve made a room reservation.', info=info)
+            send_msg(f'[VRRA] You\'ve reserved a meeting room on {info["date"]} at {info["time_start"]}:00 - {info["time_end"]}:00', [current_user.email], user_msg_html)
             
             return redirect(url_for('booking.index'))
     
         flash(error, 'error')
     else:
         # Pre-populate form with current datetime
-        form.time_start.default = datetime.now().strftime("%H")
-        form.time_end.default = (datetime.now()+timedelta(hours=1)).strftime("%H")
+        form.time_start.default = datetime.now().hour
+        form.time_end.default = datetime.now().hour + 1
         form.process()
     
     return render_template('booking/book.html', form=form, party=party_list, hours=OPEN_HOURS, no_of_rooms=NO_OF_ROOMS)
@@ -117,6 +130,7 @@ def book():
 @booking_bp.route('/<int:id>/edit', methods=('GET', 'POST'))
 @login_required
 def edit(id):
+    """ Edits reservation<id>"""
     prev_record = db.session.query(Reservation).filter(Reservation.id==id).first()
     form = ReservationForm()
 
@@ -149,9 +163,7 @@ def edit(id):
 
         if error == '':
             # Notify party about changes made to this reservation
-            # party_list_form.remove((current_user.username, current_user.name))
-
-            meeting_info = {
+            info = {
                         'subject':      form.subject.data,
                         'date':         form.booked_date.data,
                         'time_start':   form.time_start.data,
@@ -160,45 +172,40 @@ def edit(id):
                         'booking_time': datetime.now().strftime('%H:%M:%S'),
                         'invitee':      (current_user.name, current_user.username),
                         'notes':        form.message.data
-                        }
+                    }
 
-            # check if anyone is disinvited (contains usernames)
+            # check if anyone is disinvited or newly added (contains usernames)
+            prev_party.remove(current_user.username)
             party_disinvited = set(prev_party) - set(form.party.data)
-            party_added = set(prev_party) - set(form.party.data)
+            party_added = set(form.party.data) - set(prev_party)
             party_unchanged = set(prev_party) & set(form.party.data)
-            print(prev_party, form.party.data)
-            if party_disinvited:
-                print('party_disinvited', party_disinvited)
-                prev_meeting_info = {
+            
+            prev_info = {
                         'subject':      prev_record.subject,
                         'date':         prev_record.booked_date,
                         'time_start':   prev_record.time_start,
                         'time_end':     prev_record.time_end,
                         'party':        prev_record.party,
-                        'invitee':      (current_user.name, current_user.username),
-                        'notes':        prev_record.message
+                        'host':      (current_user.name, current_user.username),
+                        'message':        prev_record.message
                 }
 
-                disinvite_html = render_template('mail/booking/disinvite.html', info=prev_meeting_info)
-                send_msg('Meeting Disinvitation', get_party_email(party_disinvited), disinvite_html)
+            if party_disinvited:
+                disinvite_html = render_template('mail.html', message= 'You\'ve been disinvited from a meeting.', info=prev_info)
+                send_msg(f'[VRRA] Meeting Disinvitation: <{prev_info["subject"]}> .', get_party_email(party_disinvited), disinvite_html)
 
             if party_added:
-                print('party_added', party_added)
-
-                invite_html = render_template('mail/booking/invite.html', info=meeting_info)
-                send_msg('Meeting Invitation', get_party_email(party_added), invite_html)
+                invite_html = render_template('mail.html', message='You\'ve been invited to a meeting.', info=info)
+                send_msg(f'[VRRA] Meeting Invitation on {info["date"]} at {info["time_start"]}:00 - {info["time_end"]}:00', get_party_email(party_added), invite_html)
 
             if party_unchanged:
-                print('party_unchanged',party_unchanged)
+                modified_html = render_template('mail.html', message=f'The [{prev_info["subject"]}](previous) meeting has been modified.', info=info)
+                send_msg(f'[VRRA] Meeting Modified: <{prev_info["subject"]}>', get_party_email(party_unchanged), modified_html)
 
-                modified_html = render_template('mail/booking/modified.html', info=meeting_info)
-                send_msg('Meeting Modified', get_party_email(party_unchanged), modified_html)
+            # Email to host
+            user_msg_html = render_template('mail.html', message=f'The [{prev_info["subject"]}] has been modified.', info=info)
+            send_msg(f'[VRRA] You\'ve modified a reservation', [current_user.email], user_msg_html)
 
-            # Email to host/invitee
-            user_msg_html = render_template('mail/booking/success.html', info=meeting_info)
-            send_msg('Reservation Booked', [current_user.email], user_msg_html)
-
-            # mod party list, subject
             db.session.query(Reservation).filter(Reservation.id==id).update(
                 dict(
                     subject=form.subject.data,
@@ -214,11 +221,10 @@ def edit(id):
         else:
             flash(error, 'error')
     else:
-        # Pre-populate form with record's current data
+        # Pre-populate form with reservation's current data
         form.room_id.default = prev_record.room_id
         form.booked_date.default = prev_record.booked_date
         form.process()
-
         form.party.data = prev_party
 
     return render_template('booking/edit.html', record=prev_record, form=form, party=party_list, no_of_rooms=NO_OF_ROOMS, hours=OPEN_HOURS, te=te, ts=ts)
@@ -226,12 +232,13 @@ def edit(id):
 @booking_bp.route('/<int:id>/cancel', methods= ('POST','GET'))
 @login_required
 def cancel(id):
+    """ Cancels reservation<id> """
     r = db.session.query(Reservation).filter(Reservation.id==id).first()
 
     party_emails = get_party_email([p.split(',')[0] for p in r.party])
     party_emails.append(current_user.email)
 
-    meeting_info = {
+    info = {
         'date':r.booked_date,
         'time_start':r.time_start,
         'time_end':r.time_end,
@@ -240,35 +247,48 @@ def cancel(id):
         'host': (current_user.name, current_user.username)
         }
 
-    cancel_html = render_template('mail/booking/cancel.html', info=meeting_info)
-    send_msg('Meeting Canceled', party_emails, cancel_html)
+    cancel_html = render_template('mail.html', message=f'The meeting you\'re in has been canceled.', info=info)
+    send_msg(f'[VRRA] Meeting Canceled: <{info["subject"]}>', party_emails, cancel_html)
 
     db.session.query(Reservation).filter(Reservation.id==id).delete()
     db.session.commit()
 
     return redirect(url_for('booking.index'))
 
-# Route used for ajax dynamic(kinda) schedule table update
+# Route used for updatinng schedule table
 @booking_bp.route('/_get_status')
 def get_status():
     date = request.args.get('date', datetime.today().strftime('%Y-%m-%d'))
     record = get_booked(date)
     return jsonify(record)
 
+def get_booked(date):
+    """ Gets all reserved time on given date. Utility for status table"""
+    booked = {}
+    for i in range(1,NO_OF_ROOMS+1):
+        booked[i] = []
+    for r in db.session.query(Reservation.room_id, Reservation.time_start, Reservation.time_end).filter(Reservation.booked_date==date).all():
+        booked[r.room_id].append(
+            (int(r.time_start.strftime('%H')), int(r.time_end.strftime('%H')))
+        )
+    return booked
+
 @booking_bp.route('/status', methods=('GET','POST'))
 def status():
+    """ Displays all room status """
     update_records()
     send_reminder()
     return render_template('booking/status.html', hours=OPEN_HOURS, no_of_rooms=NO_OF_ROOMS)
 
 # Functions to get data from DB
 def get_party():
+    """ Gets all participants/users in the system, excluding admin """
     party = db.session.query(User.username, User.name).filter(User.admin!=True).all()
     return party
 
 def check_room_avail(room_id, booked_date, time_start,time_end, edit_id=None):
+    """ Checks room availability """
     if db.session.query(Reservation).first():
-        print('chekcecekanckano')
         if edit_id != None:
             records = db.session.query(Reservation).filter(Reservation.id!=edit_id, Reservation.booked_date==booked_date).all()
         else:
@@ -277,7 +297,7 @@ def check_room_avail(room_id, booked_date, time_start,time_end, edit_id=None):
         time_end = time_end if time_end!=0 else 24
 
         for rec in records:
-            print(rec.room_id, room_id, '\n', rec.time_start,  rec.time_end, '\n', time_start, time_end)
+            # print(rec.room_id, room_id, '\n', rec.time_start,  rec.time_end, '\n', time_start, time_end)
             if rec.room_id == room_id \
                 and (rec.time_start <= time_start and time_start <= rec.time_end) \
                 and (rec.time_start <= time_end and time_end <= rec.time_end):
@@ -285,6 +305,7 @@ def check_room_avail(room_id, booked_date, time_start,time_end, edit_id=None):
     return ''
 
 def check_party_avail(booked_date, time_start, time_end, party_list, id=None):
+    """ Checks all participants availability """
     if db.session.query(Reservation).first():
         if id:
             records = db.session.query(Reservation._party, Reservation.time_start, Reservation.time_end).filter(Reservation.booked_date==booked_date, Reservation.id!=id).all()
@@ -305,42 +326,16 @@ def check_party_avail(booked_date, time_start, time_end, party_list, id=None):
     return ''
 
 def get_party_email(party_usernames):
-    # party_usernames = [p[0] for p in party_list]
+    """ Get given participants' emails"""
     emails = db.session.query(User.username, User.email).filter(User.username.in_(party_usernames)).all()
     return emails
-    
-def get_reservations():
-    reservations = {}
-    for r in db.session.query(Reservation).all():
-        date = r.booked_date.strftime('%y-%m-%d')
-        reservations.setdefault(date, []).append(
-            {
-            'id' : r.id,
-            'username ':r.username ,
-            'booking_time':r.booking_time,
-            'time_start': int(r.time_start.strftime('%H')),
-            'time_end':r.time_end,
-            'party':r.party
-            }
-        )
-    return reservations
-    
-def get_booked(date):
-    booked = {}
-    for i in range(1,NO_OF_ROOMS+1):
-        booked[i] = []
-    for r in db.session.query(Reservation.room_id, Reservation.time_start, Reservation.time_end).filter(Reservation.booked_date==date).all():
-        booked[r.room_id].append(
-            (int(r.time_start.strftime('%H')), int(r.time_end.strftime('%H')))
-        )
-    return booked
-
+        
 def check_time_passed(date, ts, te):
+    """ Compares given datetime with current datetime """
     d1 = str(date).split('-')
     d2 = datetime.today().strftime('%Y-%m-%d').split('-')
     d1 = [int(i)for i in d1]
     d2 = [int(i)for i in d2]
-    # fix date checking, mabok oi kalo 2022 < 2021, jan < dec
 
     check = [i <= j for i, j in zip(d1, d2)]
     for c in check:
@@ -361,12 +356,14 @@ def check_time_passed(date, ts, te):
     return 2
 
 def check_time_diff(date):
+    """ Calculates time difference between given date and today"""
     d1 = str(date).split('-')
     d1 = datetime(int(d1[0]), int(d1[1]), int(d1[2]))
     d2 = datetime.today()    
     return (d1-d2).days
 
 def update_records():
+    """ Updates all records' statuses """
     past_records = db.session.query(Reservation.id, Reservation.booked_date, Reservation.time_start, Reservation.time_end).filter(Reservation.status!=2).all()
 
     for r in past_records:
@@ -379,6 +376,7 @@ def update_records():
         db.session.commit()
     
 def send_reminder():
+    """ Sends reminders to participants with D-1"""
     reservations = db.session.query(Reservation).filter(Reservation.status==0, Reservation.reminder==False).all()
     
     for r in reservations:
@@ -386,7 +384,7 @@ def send_reminder():
         # 1 day before booked date
         if check_time_diff(date) <= 1:
             print('reminder sent')
-            meeting_info = {
+            info = {
                 'subject':r.subject,
                 'date':r.booked_date,
                 'time_start':r.time_start,
@@ -396,9 +394,11 @@ def send_reminder():
                 'host': (current_user.name, current_user.username),
                 'notes':r.message
                 }
+
             party_emails = get_party_email([p.split(',')[0] for p in r.party])
-            reminder_html = render_template('mail/reminder.html', info=meeting_info)
-            send_msg('Meeting Reminder', party_emails, reminder_html)
+            reminder_html = render_template('mail.html', message='The meeting you\'re in is coming soon.', info=info)
+            send_msg(f'[VRRA] Meeting Reminder: <{info["subject"]}> ', party_emails, reminder_html)
+
             db.session.query(Reservation).filter(Reservation.id==r.id).update(
                 dict(
                     reminder=True))

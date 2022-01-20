@@ -19,7 +19,7 @@ except OSError:
 # app.config['SECRET_KEY'] = 'dev'
 
 app.config.from_object(Config)
-app.config.from_pyfile('../acc.cfg')
+app.config.from_pyfile('../account.cfg')
 
 db.init_app(app)
 

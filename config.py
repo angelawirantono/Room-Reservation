@@ -4,6 +4,9 @@ from flask import current_app
 OPEN_HOURS = (8,24)
 NO_OF_ROOMS = 5
 
+# Meeting reminders 
+REMINDERS = []
+
 class Config(object):
     TESTING = False
     MAIL_SERVER = '127.0.0.1'

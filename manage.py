@@ -28,7 +28,7 @@ def create_admin_command():
 
     admin_email = ''
     read_data= []
-    with open('acc.cfg') as f:
+    with open('account.cfg') as f:
         read_data = f.read().replace('\n', ';')
         read_data = read_data.split(';')
 

@@ -65,7 +65,7 @@ def book():
 
         # parse time object from given hour integer
         time_start = time(int(form.time_start.data),0,0,0)
-        time_end = time(int(form.time_end.data),0,0,0)
+        time_end = time(int(form.time_end.data) if int(form.time_end.data)!=24 else 0,0,0,0)
 
         reservation = Reservation(
                 current_user.username,
@@ -78,8 +78,9 @@ def book():
                 party_list_form,
                 form.message.data
                 )
-        error = check_room_avail(form.room_id.data, form.booked_date.data, time_start, time_end)
-        error = check_party_avail(form.booked_date.data, time_start, time_end, party_list_form)
+        error = check_room_avail(int(form.room_id.data), form.booked_date.data, time_start, time_end)
+        error += '\n' if error else ''
+        error += check_party_avail(form.booked_date.data, time_start, time_end, party_list_form)
         if error == '':
             db.session.add(reservation)
             db.session.commit()
@@ -267,11 +268,13 @@ def get_party():
 
 def check_room_avail(room_id, booked_date, time_start,time_end, edit_id=None):
     if db.session.query(Reservation).first():
-        
-        records = db.session.query(Reservation).filter(Reservation.booked_date==booked_date).all()
-
+        print('chekcecekanckano')
         if edit_id != None:
             records = db.session.query(Reservation).filter(Reservation.id!=edit_id, Reservation.booked_date==booked_date).all()
+        else:
+            records = db.session.query(Reservation).filter(Reservation.booked_date==booked_date).all()
+
+        time_end = time_end if time_end!=0 else 24
 
         for rec in records:
             print(rec.room_id, room_id, '\n', rec.time_start,  rec.time_end, '\n', time_start, time_end)
@@ -287,6 +290,8 @@ def check_party_avail(booked_date, time_start, time_end, party_list, id=None):
             records = db.session.query(Reservation._party, Reservation.time_start, Reservation.time_end).filter(Reservation.booked_date==booked_date, Reservation.id!=id).all()
         else:
             records = db.session.query(Reservation._party, Reservation.time_start, Reservation.time_end).filter(Reservation.booked_date==booked_date).all()
+
+        time_end = time_end if time_end!=0 else 24
 
         for rec in records:
             for party in party_list:
@@ -346,6 +351,7 @@ def check_time_passed(date, ts, te):
     if d1[2] == d2[2]:        
         hour_now = int(datetime.now().strftime('%H'))
         time_end = int(te.strftime('%H'))
+        time_end = time_end if time_end != 0 else 24
         time_start = int(ts.strftime('%H'))
         print(hour_now, time_start, time_end)
         if(time_end > hour_now):

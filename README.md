@@ -10,6 +10,7 @@ There exists several `CLI commands` to directly modify the database.
 > `flask init-db` Overwrites existing database, creates a new one right after.   
 > `flask drop-db` Drops existing database.   
 > `flask create-admin` Creates admin account.   
+
 Username:admin
 
 password:admin

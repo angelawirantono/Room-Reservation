@@ -8,6 +8,6 @@ All required documents including: SRS, SAD and SDD can be found on the `Document
 Main project source code can be found in `SourceCode` folder.
 
 ## Video Link
-*later~*
+System explanation: https://youtu.be/zJpvm7IQ6cY
 
 The project should be accessible at *localhost* `http://127.0.0.1:5000/` after running the source code.

@@ -8,7 +8,7 @@ Create a virtualenv and activate it. For **Windows cmd**:
 python -m venv
 .\venv\Scripts\activate
 ```
-Other platforms might require different commands.
+Other platforms might require different commands. Check https://docs.python.org/3/library/venv.html for more details.
 ### Dependencies
 This project uses multiple Flask extensions. To install all the requirements:
 ```

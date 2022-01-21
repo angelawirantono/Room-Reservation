@@ -9,6 +9,9 @@ body {
     padding: 0px !important;
     margin: 0px !important;
     font-size:14px !important;    
+    min-height: 750px;
+    margin-bottom: 100px;
+    clear: both;
 }
 h1,h2,h3,h4,h5{
     font-weight: 300;

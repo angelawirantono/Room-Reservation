@@ -7,14 +7,10 @@
         Time: {{ info['time_start'] }}:00 - {{ info['time_end'] }}:00 <br>
     </h3>
         Invitation notes: <br>
-        {% if info['notes'] %}
-        {{ notes }}
-        {% else %}
-        None
-        {% endif %}
+        {{ info['message'] }}
     </div>
     <br>
     <div>
-        <em>Reservation made on {{ info['booking_time'] }} by {{ info['host'] }}</em>
+        <em>Reservation made on {{ info['booking_time'] }} by {{ info['host'][0] }}({{ info['host'][1] }})</em>
     </div>
 </div>

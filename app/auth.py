@@ -33,7 +33,7 @@ def register():
 
             mail_html = '<p>Welcome! Thanks for signing up. </p>'
 
-            send_msg('[VRRA] You\ve succesfully been registered!', [form.email.data], mail_html)
+            send_msg(f'[VRRA] You\'ve succesfully been registered!', [form.email.data], mail_html)
                    
             db.session.add(user)
             db.session.commit()

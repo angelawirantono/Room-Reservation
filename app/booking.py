@@ -1,4 +1,5 @@
 """ Handles reservation booking, editing, canceling and other booking utility functionalities """
+from operator import and_
 from flask import (
     Blueprint, flash, redirect, render_template, request, url_for, jsonify
 )
@@ -68,9 +69,9 @@ def book():
         party_list_form.append((current_user.username, current_user.name))
 
         # If reservation happens today, no need reminders
-        need_reminder = True
+        no_reminder = False
         if form.booked_date.data == date.today():
-            need_reminder = False
+            no_reminder = True
 
         # parse time object from given hour integer
         time_start = time(int(form.time_start.data),0,0,0)
@@ -86,7 +87,7 @@ def book():
                 time_end, 
                 party_list_form,
                 form.message.data,
-                need_reminder
+                no_reminder
                 )
 
         error = check_room_avail(int(form.room_id.data), form.booked_date.data, time_start, time_end)
@@ -170,7 +171,7 @@ def edit(id):
                         'time_end':     form.time_end.data,
                         'party':        party_list_form,
                         'booking_time': datetime.now().strftime('%H:%M:%S'),
-                        'invitee':      (current_user.name, current_user.username),
+                        'host':      (current_user.name, current_user.username),
                         'notes':        form.message.data
                     }
 
@@ -186,9 +187,14 @@ def edit(id):
                         'time_start':   prev_record.time_start,
                         'time_end':     prev_record.time_end,
                         'party':        prev_record.party,
-                        'host':      (current_user.name, current_user.username),
-                        'message':        prev_record.message
+                        'host':         (current_user.name, current_user.username),
+                        'message':      prev_record.message
                 }
+
+            print(party_disinvited)
+            print(party_added)
+            print(party_unchanged)
+
 
             if party_disinvited:
                 disinvite_html = render_template('mail.html', message= 'You\'ve been disinvited from a meeting.', info=prev_info)
@@ -239,6 +245,7 @@ def cancel(id):
     party_emails.append(current_user.email)
 
     info = {
+        'subject': r.subject,
         'date':r.booked_date,
         'time_start':r.time_start,
         'time_end':r.time_end,
@@ -348,7 +355,6 @@ def check_time_passed(date, ts, te):
         time_end = int(te.strftime('%H'))
         time_end = time_end if time_end != 0 else 24
         time_start = int(ts.strftime('%H'))
-        print(hour_now, time_start, time_end)
         if(time_end > hour_now):
             if(hour_now >= time_start):
                 return 1
@@ -369,7 +375,7 @@ def update_records():
     for r in past_records:
         curr_stat = check_time_passed(r.booked_date, r.time_start, r.time_end)
 
-        print(f'ID{r.id} Date: {r.booked_date}\t{r.time_end} stat:{curr_stat}')
+        # print(f'ID{r.id} Date: {r.booked_date}\t{r.time_end} stat:{curr_stat}')
         db.session.query(Reservation).filter(Reservation.id==r.id).update(
                 dict(
                     status=curr_stat))
@@ -377,13 +383,12 @@ def update_records():
     
 def send_reminder():
     """ Sends reminders to participants with D-1"""
-    reservations = db.session.query(Reservation).filter(Reservation.status==0, Reservation.reminder==False).all()
+    reservations = db.session.query(Reservation).filter(and_(Reservation.reminder==False, Reservation.status==0)).all()
     
     for r in reservations:
         date = r.booked_date
         # 1 day before booked date
         if check_time_diff(date) <= 1:
-            print('reminder sent')
             info = {
                 'subject':r.subject,
                 'date':r.booked_date,
@@ -392,7 +397,7 @@ def send_reminder():
                 'party':r.party,
                 'cancel_time': datetime.now().strftime('%H:%M:%S'),
                 'host': (current_user.name, current_user.username),
-                'notes':r.message
+                'message':r.message
                 }
 
             party_emails = get_party_email([p.split(',')[0] for p in r.party])

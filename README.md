@@ -2,7 +2,7 @@
 *Software Engineering Final Project by Group 21*
 
 ## Documents
-All required documents including: SRS, SAD and SDD can be found on the `Documents` folder.
+All required documents including: SRS, SAD, SDD and User Guide can be found on the `Documents` folder.
 
 ## Source Code
 Main project source code can be found in `SourceCode` folder.

@@ -1,0 +1,7 @@
+Video Link:
+https://youtu.be/zJpvm7IQ6cY
+
+Github repository link:
+https://github.com/angelawirantono/Room-Reservation
+
+Final project link is available at localhost after running the program
